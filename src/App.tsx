@@ -24,6 +24,8 @@ import Profile from "./pages/profile/Profile";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import SearchResultsPage from "./pages/searchResults/SearchResultsPage";
 import SupportPage from "./pages/help/Help";
+import MyGoals from "./pages/MyGoals/goals";
+import MaqsaddoshSocialFeed from "./pages/maqsaddosh/maqsaddosh";
 
 function AppContent() {
   const location = useLocation();
@@ -59,8 +61,11 @@ function AppContent() {
         <Route path="/add-goal" element={<AddGoal />} />
         <Route path="/edu/:directionsId" element={<Edu />} />
         <Route path="/goals" element={<AllGoals />} />
+        <Route path="/my-goals" element={<MyGoals />} />
         <Route path="/goals/:id" element={<GoalDetail />} />
         <Route path="/profile" element={<Profile />} />
+
+        <Route path="/joined-goals" element={<MaqsaddoshSocialFeed />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

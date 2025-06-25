@@ -1,0 +1,9 @@
+.truncate{
+        overflow: hidden;
+    white-space: nowrap;
+}
+
+
+.overflow-ellipsis{
+        text-overflow: ellipsis;
+}

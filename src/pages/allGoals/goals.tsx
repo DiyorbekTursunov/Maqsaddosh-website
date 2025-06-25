@@ -6,7 +6,7 @@ import apiService from "../../api/apiService"
 import type { Goal, SubDirection } from "../../types"
 import { ChevronLeft, Flag, ClipboardCheck, ArrowRight } from "lucide-react"
 import Navbar from "../../components/navbar/Navbar"
-import defaultAvatar from "../../assets/images/profile.png" // Default avatar
+import defaultAvatar from "../../assets/images/profile/default_avatar.png" // Default avatar
 
 const calculateDaysLeft = (endDate: string): number => {
   const end = new Date(endDate)
@@ -83,7 +83,7 @@ function AllGoals() {
       <Navbar />
       <div className="max-w-[1058px] mx-auto px-5 py-6">
         <div className="flex items-center justify-between text-[20px] font-semibold mb-5">
-          <button className="flex items-center gap-2 text-gray-700 hover:text-gray-900" onClick={handleBackClick}>
+          <button className="cursor-pointer flex items-center gap-2 text-gray-700 hover:text-gray-500 transition-all duration-300" onClick={handleBackClick}>
             <ChevronLeft className="text-gray-500" />
             <span>{subdirectionName}</span>
           </button>

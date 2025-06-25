@@ -107,7 +107,7 @@ function Home() {
       <Hero />
       <section className="home py-10">
         <div className="container max-w-[1138px] w-full mx-auto px-5">
-          <p className="font-semibold md:text-[20px] text-lg leading-[130%] tracking-[0%] font-manrope text-gray-900 mb-5">
+          <p className="font-medium md:text-[20px] text-lg leading-[130%] tracking-[0%] font-manrope text-gray-900 mb-5">
             Maqsad yo’nalishlari
           </p>
           {isLoading && <p className="text-center text-gray-600">Yuklanmoqda...</p>}

@@ -167,16 +167,16 @@ function Profile() {
           <div className="md:flex-col flex w-full md:w-[285px] md:mb-0 mb-10 justify-between md:justify-start md:gap-0 md:pr-5 py-3  rounded-lg">
             {[
               { label: "Profile", icon: userr, action: () => {}, active: true },
-              { label: "Maqsaddlarim", icon: setting, action: () => navigate("/goals") },
+              { label: "Maqsaddlarim", icon: setting, action: () => navigate("/my-goals/") },
               { label: "Yordam", icon: message, action: () => navigate("/help") },
               { label: "Chiqish", icon: logoutIconImg, action: handleLogout, isLogout: true },
             ].map((item, index, arr) => (
               <div key={item.label}>
                 <div
-                  className={`flex items-center gap-3 md:pl-4 px-2 py-3 cursor-pointer hover:bg-gray-100 rounded-md ${item.active ? "text-blue-600 font-semibold" : "text-gray-700"}`}
+                  className={`flex items-center gap-3 md:pl-4 px-2 py-3 cursor-pointer hover:bg-gray-100 rounded-md ${item.active ? "font-semibold" : "text-gray-700"}`}
                   onClick={item.action}
                 >
-                  <img className="w-6 h-6" src={item.icon || "/placeholder.svg"} alt={item.label} />
+                  <img className="w-6 h-6 hidden md:inline-block" src={item.icon || "/placeholder.svg"} alt={item.label} />
                   <p className={`font-manrope text-[16px] ${item.isLogout ? "text-red-600" : ""}`}>{item.label}</p>
                 </div>
                 {index < arr.length - 2 && !item.isLogout && <hr className="my-1 md:hidden" />}
@@ -220,7 +220,7 @@ function Profile() {
                         <p className="text-gray-700 font-manrope text-[14px]">{field.value}</p>
                       </div>
                       <button
-                        className="border-none text-blue-600 hover:text-blue-800 font-manrope font-semibold text-[14px] cursor-pointer"
+                        className="border-none  hover:text-blue-800 font-manrope font-semibold text-[14px] cursor-pointer"
                         onClick={field.editAction}
                       >
                         {field.editText || "Taxrirlash"}
@@ -238,7 +238,7 @@ function Profile() {
                     </label>
                     <button
                       type="button"
-                      className="text-sm text-gray-600 hover:text-gray-800"
+                      className="text-sm text-gray-600 hover:text-gray-800 cursor-pointer"
                       onClick={toggleEditForm}
                     >
                       Ortga

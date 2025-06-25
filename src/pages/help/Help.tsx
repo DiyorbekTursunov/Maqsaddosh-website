@@ -64,7 +64,7 @@ export default function SupportPage() {
             </h1>
             <button
               type="button"
-              className="bg-blue-700 hover:bg-blue-600 text-white px-8 py-4 rounded-2xl h-[60px] w-full sm:w-[285px] text-base font-semibold flex items-center justify-center gap-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="cursor-pointer bg-blue-700 hover:bg-blue-600 text-white px-8 py-4 rounded-2xl h-[60px] w-full sm:w-[285px] text-base font-semibold flex items-center justify-center gap-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               <Send className="w-5 h-5" />
               BOG'LANISH
@@ -90,7 +90,7 @@ export default function SupportPage() {
                       onClick={() => handleAccordionToggle(item.id)}
                       aria-expanded={isOpen}
                       aria-controls={`faq-content-${item.id}`}
-                      className={`flex justify-between items-center w-full px-6 py-5 text-left font-medium text-base group focus:outline-none ${
+                      className={` cursor-pointer flex justify-between items-center w-full px-6 py-5 text-left font-medium text-base group focus:outline-none ${
                         isOpen ? "text-white" : "text-gray-700 hover:text-gray-900"
                       }`}
                     >
@@ -112,7 +112,7 @@ export default function SupportPage() {
                     {isOpen && (
                       <div
                         id={`faq-content-${item.id}`}
-                        className="px-6 pb-6 text-sm opacity-95"
+                        className="text-[#fff] px-6 pb-6 text-sm opacity-95"
                       >
                         {item.answer}
                       </div>

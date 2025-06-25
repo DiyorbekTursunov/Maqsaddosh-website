@@ -3,6 +3,9 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import axios from "axios";
 import { ChevronLeft, Flag, ClipboardCheck, Send, Phone } from "lucide-react";
 import Navbar from "../../components/navbar/Navbar";
+import apiService from "../../api/apiService";
+import defaultAvatar from "../../assets/images/profile/default_avatar.png" // Default avatar
+
 
 interface Goal {
   id: string;
@@ -65,30 +68,51 @@ export default function GoalDetail() {
       return;
     }
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setIsLoading(false);
+      return;
+    }
+
     const fetchData = async () => {
       setIsLoading(true);
       try {
         // Fetch goal
-        const goalResponse = await axios.get<{ success: boolean; data: Goal }>(
-          `https://maqsaddosh-backend-o2af.onrender.com/api/goals/${id}`,
+        const goalResponse = await apiService.get<{ success: boolean; data: Goal }>(
+          `/goals/${id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
           }
         );
-        if (goalResponse.data.success) {
+
+        const response = await apiService.get(
+          "/me",
+          {
+            // Adjust API_BASE_URL if needed
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (goalResponse.data.success && response.status === 200) {
           const fetchedGoal = goalResponse.data.data;
+
           setGoal(fetchedGoal);
           setError("");
 
-          // Check if user is creator or participant
-          const userId = localStorage.getItem("userId"); // Adjust based on your auth setup
-          if (userId) {
-            setIsCreator(fetchedGoal.creatorId === userId);
+          console.log(response.data.data);
+
+
+          if (response.data.data.id) {
+            setIsCreator(fetchedGoal.creatorId === response.data.data.id);
+            console.log(fetchedGoal.creatorId);
+
             setIsJoined(
               fetchedGoal.participants.some(
-                (p) => p.userId === userId && p.role === "PARTICIPANT"
+                (p) => p.userId === response.data.data.id && p.role === "PARTICIPANT"
               )
             );
           }
@@ -97,8 +121,8 @@ export default function GoalDetail() {
           if (fetchedGoal.subDirection) {
             try {
               const subDirectionResponse =
-                await axios.get<SubDirectionResponse>(
-                  `https://maqsaddosh-backend-o2af.onrender.com/api/directions/${fetchedGoal.subDirection}`,
+                await apiService.get<SubDirectionResponse>(
+                  `/api/directions/${fetchedGoal.subDirection}`,
                   {
                     headers: {
                       Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -211,7 +235,7 @@ export default function GoalDetail() {
         <div className="max-w-[995px] mx-auto px-4 py-6">
           <button
             onClick={handleGoBack}
-            className="flex items-center text-gray-400 hover:text-gray-600 mb-4"
+            className="cursor-pointer flex items-center text-gray-400 hover:text-gray-600 transition-all duration-300 mb-4"
           >
             <ChevronLeft className="w-6 h-6" />
             <span className="text-gray-700 text-[20px]">Orqaga</span>
@@ -231,10 +255,10 @@ export default function GoalDetail() {
           <div className="flex items-center space-x-2 text-sm">
             <button
               onClick={handleGoBack}
-              className="flex items-center text-gray-400 hover:text-gray-600"
+              className="cursor-pointer flex items-center text-gray-400"
             >
               <ChevronLeft className="w-6 h-6" />
-              <span className="text-gray-700 text-[20px]">
+              <span className="text-gray-700  hover:text-gray-400 text-[20px] transition-all duration-300">
                 {subdirectionName}
               </span>
             </button>
@@ -245,7 +269,7 @@ export default function GoalDetail() {
         <div className="border-[1px] border-gray-200 rounded-[16px] py-4 px-5 mb-4">
           <div className="flex items-center gap-2 mb-2">
             <img
-              src={goal.creator.avatar || "/profile/default_avatar.png"}
+              src={goal.creator.avatar || defaultAvatar}
               alt="Profile"
               className="w-8 h-8 rounded-full"
             />
@@ -275,7 +299,7 @@ export default function GoalDetail() {
                   {goal.participants.slice(0, 3).map((participant, index) => (
                     <img
                       key={index}
-                      src={participant.avatar || "/profile/default_avatar.png"}
+                      src={participant.avatar || defaultAvatar}
                       alt=""
                       className="w-6 h-6 rounded-full"
                     />

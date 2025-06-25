@@ -57,15 +57,15 @@ function Edu() {
     <>
       <Navbar />
       <Hero /> {/* Consider if Hero component is appropriate here or needs props */}
-      <section className="edu py-10 bg-gray-50">
+      <section className="edu py-10">
         <div className="container max-w-6xl w-full mx-auto px-5">
           {isLoading && <p className="text-center text-gray-600">Yuklanmoqda...</p>}
           {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
           {direction && !isLoading && !error && (
             <>
-              <p className="flex font-semibold md:text-[20px] text-lg leading-[130%] tracking-[0%] font-manrope text-gray-900 mb-5">
-                 yo’nalishlari
+              <p className="flex md:text-[20px] text-lg leading-[130%] tracking-[0%] font-manrope text-gray-900 mb-5">
+                 Maqsad yo’nalishlari
               </p>
               {direction && direction.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full pb-10">
@@ -75,7 +75,7 @@ function Edu() {
                       className="flex items-center justify-between h-20 rounded-2xl border-[0.5px] border-gray-100 bg-[#DBDFFC] pr-5 pl-4 cursor-pointer hover:shadow-lg transition"
                       onClick={() => handleSubdirectionClick(sub.id)}
                     >
-                      <span className="font-manrope font-semibold text-[20px] leading-[130%] tracking-[0%] text-gray-900">
+                      <span className="font-manrope font-medium text-[20px] leading-[130%] tracking-[0%] text-gray-900">
                         {sub.name}
                       </span>
                       <img

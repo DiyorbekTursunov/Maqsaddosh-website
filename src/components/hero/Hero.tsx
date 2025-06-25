@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react"
 import { useNavigate } from "react-router-dom"
 import searchIcon from "../../assets/images/search-normal.svg" // Ensure this path is correct
+import "./hero.css" // Ensure this path is correct
 
 function Hero() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -19,8 +20,8 @@ function Hero() {
   return (
     <section className="hero lg:py-14 md:py-10 py-8 bg-white">
       <div className="container max-w-[700px] w-full mx-auto px-5 text-center">
-        <h1 className="font-semibold md:text-5xl text-4xl leading-tight tracking-tight font-manrope text-gray-900 mb-5">
-          <span className="text-blue-600">Maqsaddosh!</span> <br />
+        <h1 className="font-medium md:text-5xl text-4xl leading-tight tracking-tight font-manrope text-gray-900 mb-5">
+          <span className="text-[#0367FC]">Maqsaddosh!</span> <br />
           bilan maqsadlaringiz <br /> orzu bo'lib qolmaydi.
         </h1>
         <p className="font-medium md:text-xl text-lg leading-relaxed font-manrope text-gray-700 md:mb-10 mb-8">

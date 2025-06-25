@@ -1,122 +1,231 @@
-import { useState, useEffect, type FormEvent } from "react"
+import { useState, useEffect, useCallback, type FormEvent, type ChangeEvent } from "react"
 import { useNavigate } from "react-router-dom"
 import apiService from "../../api/apiService"
 import type { Direction, SubDirection } from "../../types"
 import Navbar from "../../components/navbar/Navbar"
 import { ChevronDown } from "lucide-react"
 
-const VISIBILITY_MAP = {
+// Types
+interface ApiResponse<T> {
+  data: T
+  success: boolean
+  error?: string
+}
+
+interface GoalFormData {
+  name: string
+  description: string
+  directionId: string
+  subDirectionId: string | null
+  duration: number
+  visibility: 'PUBLIC' | 'PRIVATE'
+  phone: string
+  telegram: string
+  endDate: string
+}
+
+type VisibilityKey = 'public' | 'private'
+type VisibilityValue = 'PUBLIC' | 'PRIVATE'
+type PeriodOption = '7' | '14' | '21' | '28'
+
+// Constants
+const VISIBILITY_MAP: Record<VisibilityKey, VisibilityValue> = {
   public: "PUBLIC",
   private: "PRIVATE",
-}
+} as const
 
-const VISIBILITY_DISPLAY_MAP = {
+const VISIBILITY_DISPLAY_MAP: Record<VisibilityValue, string> = {
   PUBLIC: "Ommaviy (Barchaga ko'rinsin)",
   PRIVATE: "Shaxsiy (Faqat menga ko'rinsin)",
-}
+} as const
 
-export default function AddGoal() {
-  const navigate = useNavigate()
+const PERIOD_OPTIONS: readonly PeriodOption[] = ["7", "14", "21", "28"] as const
 
-  const [directions, setDirections] = useState([])
-  const [subDirections, setSubDirections] = useState([])
-  const [selectedDirection, setSelectedDirection] = useState("")
-  const [selectedSubDirection, setSelectedSubDirection] = useState("")
+const INPUT_BASE_CLASS =
+  "w-full h-14 px-5 py-3.5 bg-slate-100 rounded-xl text-slate-800 placeholder-slate-500 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
 
-  const [name, setName] = useState("")
-  const [description, setDescription] = useState("")
-  const [selectedPeriod, setSelectedPeriod] = useState(null)
-  const [visibility, setVisibility] = useState("")
-  const [phone, setPhone] = useState("")
-  const [telegram, setTelegram] = useState("")
-
-  const [isLoadingDirections, setIsLoadingDirections] = useState(false)
-  const [isLoadingSubDirections, setIsLoadingSubDirections] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [subDirectionsMessage, setSubDirectionsMessage] = useState("")
+// Custom hooks
+const useDirections = () => {
+  const [directions, setDirections] = useState<Direction[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchDirections = async () => {
-      setIsLoadingDirections(true)
+      setIsLoading(true)
+      setError(null)
       try {
-        const response = await apiService.get("/directions")
+        const response = await apiService.get<ApiResponse<Direction[]>>("/directions")
         setDirections(response.data.data)
       } catch (err) {
         console.error("Yo'nalishlar yuklanmadi", err)
+        setError("Yo'nalishlarni yuklashda xatolik yuz berdi")
       } finally {
-        setIsLoadingDirections(false)
+        setIsLoading(false)
       }
     }
     fetchDirections()
   }, [])
 
+  return { directions, isLoading, error }
+}
+
+const useSubDirections = (selectedDirection: string) => {
+  const [subDirections, setSubDirections] = useState<SubDirection[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [message, setMessage] = useState("")
+
   useEffect(() => {
-    if (selectedDirection) {
-      const fetchSubDirections = async () => {
-        setIsLoadingSubDirections(true)
-        setSubDirections([])
-        setSelectedSubDirection("")
-        setSubDirectionsMessage("")
-        try {
-          const response = await apiService.get(`/directions/${selectedDirection}`)
-          if (response.data.success) {
-            if (response.data.data && response.data.data.length > 0) {
-              setSubDirections(response.data.data)
-            } else {
-              setSubDirectionsMessage("Bu yo'nalish uchun ichki bo'limlar mavjud emas.")
-              setSubDirections([])
-            }
-          } else {
-            const errorMsg = response.data.error || "Ichki yo'nalishlar ma'lumotlari noto'g'ri."
-            setSubDirectionsMessage("Ichki yo'nalishlarni yuklashda xatolik: " + errorMsg)
-            setSubDirections([])
-          }
-        } catch (err) {
-          console.error("Ichki yo'nalishlar yuklashda xatolik:", err)
-          setSubDirectionsMessage("Ichki yo'nalishlarni yuklashda server xatoligi yuz berdi.")
-          setSubDirections([])
-        } finally {
-          setIsLoadingSubDirections(false)
-        }
-      }
-      fetchSubDirections()
-    } else {
+    if (!selectedDirection) {
       setSubDirections([])
-      setSelectedSubDirection("")
-      setSubDirectionsMessage("")
+      setMessage("")
+      return
     }
+
+    const fetchSubDirections = async () => {
+      setIsLoading(true)
+      setSubDirections([])
+      setMessage("")
+
+      try {
+        const response = await apiService.get<ApiResponse<SubDirection[]>>(`/directions/${selectedDirection}`)
+
+        if (response.data.success) {
+          if (response.data.data && response.data.data.length > 0) {
+            setSubDirections(response.data.data)
+          } else {
+            setMessage("Bu yo'nalish uchun ichki bo'limlar mavjud emas.")
+          }
+        } else {
+          const errorMsg = response.data.error || "Ichki yo'nalishlar ma'lumotlari noto'g'ri."
+          setMessage("Ichki yo'nalishlarni yuklashda xatolik: " + errorMsg)
+        }
+      } catch (err) {
+        console.error("Ichki yo'nalishlar yuklashda xatolik:", err)
+        setMessage("Ichki yo'nalishlarni yuklashda server xatoligi yuz berdi.")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchSubDirections()
   }, [selectedDirection])
 
-  const calculateEndDate = (durationInDays) => {
-    const currentDate = new Date()
-    const endDate = new Date(currentDate)
-    endDate.setDate(currentDate.getDate() + durationInDays)
-    endDate.setHours(23, 59, 59, 999)
-    return endDate.toISOString()
-  }
+  return { subDirections, isLoading, message }
+}
 
-  const handleSubmit = async (e) => {
+// Utility functions
+const calculateEndDate = (durationInDays: number): string => {
+  const currentDate = new Date()
+  const endDate = new Date(currentDate)
+  endDate.setDate(currentDate.getDate() + durationInDays)
+  endDate.setHours(23, 59, 59, 999)
+  return endDate.toISOString()
+}
+
+const validateForm = (
+  formData: Omit<GoalFormData, 'endDate'> & { selectedPeriod: PeriodOption | null },
+  hasSubDirections: boolean
+): boolean => {
+  const { name, directionId, subDirectionId, selectedPeriod, visibility, phone, telegram } = formData
+
+  return !!(
+    name.trim() &&
+    directionId &&
+    (!hasSubDirections || subDirectionId) &&
+    selectedPeriod &&
+    visibility &&
+    phone.trim() &&
+    telegram.trim()
+  )
+}
+
+// Main component
+export default function AddGoal(): JSX.Element {
+  const navigate = useNavigate()
+
+  // Form state
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    phone: "",
+    telegram: "",
+  })
+
+  const [selectedDirection, setSelectedDirection] = useState("")
+  const [selectedSubDirection, setSelectedSubDirection] = useState("")
+  const [selectedPeriod, setSelectedPeriod] = useState<PeriodOption | null>(null)
+  const [visibility, setVisibility] = useState<VisibilityKey | "">("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Custom hooks
+  const { directions, isLoading: isLoadingDirections, error: directionsError } = useDirections()
+  const { subDirections, isLoading: isLoadingSubDirections, message: subDirectionsMessage } = useSubDirections(selectedDirection)
+
+  // Handlers
+  const handleInputChange = useCallback((field: keyof typeof formData) =>
+    (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setFormData(prev => ({ ...prev, [field]: e.target.value }))
+    }, []
+  )
+
+  const handleDirectionChange = useCallback((e: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedDirection(e.target.value)
+    setSelectedSubDirection("") // Reset sub-direction when direction changes
+  }, [])
+
+  const handleSubDirectionChange = useCallback((e: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedSubDirection(e.target.value)
+  }, [])
+
+  const handleVisibilityChange = useCallback((e: ChangeEvent<HTMLSelectElement>) => {
+    setVisibility(e.target.value as VisibilityKey)
+  }, [])
+
+  const handlePeriodSelect = useCallback((period: PeriodOption) => {
+    setSelectedPeriod(period)
+  }, [])
+
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!name || !selectedDirection || (subDirections.length > 0 && !selectedSubDirection) || !selectedPeriod || !visibility || !phone || !telegram) {
+
+    const formValidationData = {
+      ...formData,
+      directionId: selectedDirection,
+      subDirectionId: selectedSubDirection,
+      selectedPeriod,
+      visibility,
+    }
+
+    if (!validateForm(formValidationData, subDirections.length > 0)) {
       alert("Iltimos, barcha majburiy maydonlarni to'ldiring!")
       return
     }
+
+    if (!selectedPeriod || !visibility) return // TypeScript guard
+
     setIsSubmitting(true)
+
     try {
-      const duration = Number.parseInt(selectedPeriod, 10)
-      const goalData = {
-        name,
-        description,
+      const duration = parseInt(selectedPeriod, 10)
+      const goalData: GoalFormData = {
+        name: formData.name,
+        description: formData.description,
         directionId: selectedDirection,
         subDirectionId: selectedSubDirection || null,
         duration,
         visibility: VISIBILITY_MAP[visibility],
-        phone,
-        telegram,
+        phone: formData.phone,
+        telegram: formData.telegram,
         endDate: calculateEndDate(duration),
       }
-      await apiService.post("/goals", goalData)
-      navigate("/")
+
+      await apiService.post<ApiResponse<unknown>>("/goals", goalData)
+    //   navigate("/")
+
+
+
     } catch (err) {
       console.error("Maqsad saqlanmadi: Xatolik yuz berdi", err)
       alert("Maqsad saqlanmadi: Xatolik yuz berdi. Tafsilotlar uchun konsolni tekshiring.")
@@ -125,43 +234,61 @@ export default function AddGoal() {
     }
   }
 
-  const periodOptions = ["7", "14", "21", "28"]
-  const inputBaseClass =
-    "w-full h-14 px-5 py-3.5 bg-slate-100 rounded-xl text-slate-800 placeholder-slate-500 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+  // Computed values
+  const isFormDisabled = isLoadingDirections || isLoadingSubDirections
+  const isSubmitDisabled = isSubmitting || isFormDisabled
 
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
       <div className="container mx-auto max-w-lg px-4 py-8 sm:py-12">
         <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-xl">
-          <h2 className="text-3xl font-bold text-slate-800 text-center mb-8">Maqsad qo'shish</h2>
+          <h2 className="text-3xl font-bold text-slate-800 text-center mb-8">
+            Maqsad qo'shish
+          </h2>
+
+          {directionsError && (
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+              {directionsError}
+            </div>
+          )}
+
           <form className="space-y-5" onSubmit={handleSubmit}>
+            {/* Name Input */}
             <input
               type="text"
               placeholder="Maqsad nomi"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={formData.name}
+              onChange={handleInputChange('name')}
               required
               minLength={3}
-              className={inputBaseClass}
+              className={INPUT_BASE_CLASS}
+              disabled={isFormDisabled}
             />
+
+            {/* Description Textarea */}
             <textarea
               placeholder="Izoh qoldirish"
               rows={3}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className={`${inputBaseClass} resize-none leading-relaxed`}
+              value={formData.description}
+              onChange={handleInputChange('description')}
+              className={`${INPUT_BASE_CLASS} resize-none leading-relaxed`}
+              disabled={isFormDisabled}
             />
+
+            {/* Direction Select */}
             <div className="relative">
               <select
                 value={selectedDirection}
-                onChange={(e) => setSelectedDirection(e.target.value)}
+                onChange={handleDirectionChange}
                 required
-                disabled={isLoadingDirections}
-                className={`${inputBaseClass} appearance-none pr-10 cursor-pointer ${selectedDirection ? "text-slate-800" : "text-slate-500"}`}
+                disabled={isFormDisabled}
+                className={`${INPUT_BASE_CLASS} appearance-none pr-10 cursor-pointer ${
+                  selectedDirection ? "text-slate-800" : "text-slate-500"
+                }`}
               >
                 <option value="" disabled className="text-slate-500">
-                  Yo'nalish tanlang
+                  {isLoadingDirections ? "Yuklanmoqda..." : "Yo'nalish tanlang"}
                 </option>
                 {directions.map((dir) => (
                   <option key={dir.id} value={dir.id} className="text-slate-800">
@@ -171,16 +298,20 @@ export default function AddGoal() {
               </select>
               <ChevronDown className="w-5 h-5 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
+
+            {/* Sub Direction Select */}
             <div className="relative">
               <select
                 value={selectedSubDirection}
-                onChange={(e) => setSelectedSubDirection(e.target.value)}
+                onChange={handleSubDirectionChange}
                 required={subDirections.length > 0}
-                disabled={isLoadingSubDirections || !selectedDirection || subDirections.length === 0}
-                className={`${inputBaseClass} appearance-none pr-10 cursor-pointer ${selectedSubDirection ? "text-slate-800" : "text-slate-500"}`}
+                disabled={isFormDisabled || !selectedDirection || subDirections.length === 0}
+                className={`${INPUT_BASE_CLASS} appearance-none pr-10 cursor-pointer ${
+                  selectedSubDirection ? "text-slate-800" : "text-slate-500"
+                }`}
               >
                 <option value="" disabled className="text-slate-500">
-                  Ichki yo'nalish tanlang
+                  {isLoadingSubDirections ? "Yuklanmoqda..." : "Ichki yo'nalish tanlang"}
                 </option>
                 {subDirections.map((sub) => (
                   <option key={sub.id} value={sub.id} className="text-slate-800">
@@ -190,34 +321,47 @@ export default function AddGoal() {
               </select>
               <ChevronDown className="w-5 h-5 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
+
+            {/* Sub Directions Message */}
             {!isLoadingSubDirections && subDirectionsMessage && (
-              <p className={`text-sm mt-1 ${subDirectionsMessage.includes("xatolik") ? "text-red-500" : "text-gray-600"}`}>
+              <p className={`text-sm mt-1 ${
+                subDirectionsMessage.includes("xatolik") ? "text-red-500" : "text-gray-600"
+              }`}>
                 {subDirectionsMessage}
               </p>
             )}
+
+            {/* Period Selection */}
             <div>
               <div className="grid grid-cols-4 gap-3">
-                {periodOptions.map((days) => (
+                {PERIOD_OPTIONS.map((days) => (
                   <button
                     key={days}
                     type="button"
-                    className={`h-14 text-base w-full rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500
-                      ${selectedPeriod === days ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}
-                    onClick={() => setSelectedPeriod(days)}
-                    disabled={isLoadingDirections || isLoadingSubDirections}
+                    className={`h-14 text-base w-full rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 ${
+                      selectedPeriod === days
+                        ? "bg-blue-600 text-white"
+                        : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    }`}
+                    onClick={() => handlePeriodSelect(days)}
+                    disabled={isFormDisabled}
                   >
                     {days} kun
                   </button>
                 ))}
               </div>
             </div>
+
+            {/* Visibility Select */}
             <div className="relative">
               <select
                 value={visibility}
-                onChange={(e) => setVisibility(e.target.value)}
+                onChange={handleVisibilityChange}
                 required
-                disabled={isLoadingDirections || isLoadingSubDirections}
-                className={`${inputBaseClass} appearance-none pr-10 cursor-pointer ${visibility ? "text-slate-800" : "text-slate-500"}`}
+                disabled={isFormDisabled}
+                className={`${INPUT_BASE_CLASS} appearance-none pr-10 cursor-pointer ${
+                  visibility ? "text-slate-800" : "text-slate-500"
+                }`}
               >
                 <option value="" disabled className="text-slate-500">
                   Ommaviylik
@@ -231,26 +375,35 @@ export default function AddGoal() {
               </select>
               <ChevronDown className="w-5 h-5 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
+
+            {/* Phone Input */}
             <input
               type="tel"
-              placeholder="Telefon raqam kiriting (+998 XX XXX XX XX)"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Telefon raqam kiriting"
+              value={formData.phone}
+              onChange={handleInputChange('phone')}
               required
-              className={inputBaseClass}
+              pattern="^\+?[0-9\s\-()]{7,15}$" // Basic phone number validation
+              className={INPUT_BASE_CLASS}
+              disabled={isFormDisabled}
             />
+
+            {/* Telegram Input */}
             <input
               type="text"
-              placeholder="Telegram user kiriting (@username)"
-              value={telegram}
-              onChange={(e) => setTelegram(e.target.value)}
+              placeholder="Telegram user kiriting"
+              value={formData.telegram}
+              onChange={handleInputChange('telegram')}
               required
-              className={inputBaseClass}
+              className={INPUT_BASE_CLASS}
+              disabled={isFormDisabled}
             />
+
+            {/* Submit Button */}
             <button
               type="submit"
-              className="w-full h-14 text-lg font-semibold bg-blue-600 text-white rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-60"
-              disabled={isSubmitting || isLoadingDirections || isLoadingSubDirections}
+              className="cursor-pointer w-full h-14 text-lg font-semibold bg-blue-600 text-white rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+              disabled={isSubmitDisabled}
             >
               {isSubmitting ? "Saqlanmoqda..." : "SAQLASH"}
             </button>
