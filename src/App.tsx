@@ -43,6 +43,7 @@ function AppContent() {
         { pathname: location.pathname, search: params.toString() },
         { replace: true }
       );
+      window.location.reload(); // Reload to ensure the new token is applied
     }
   }, [location, navigate, setToken, token]);
 
