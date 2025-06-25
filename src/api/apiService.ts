@@ -2,7 +2,7 @@ import axios from "axios"
 
 // Create an Axios instance with a base URL
 const apiService = axios.create({
-  baseURL: "http://localhost:3000/api", // Your backend API base URL
+  baseURL: "https://maqsaddosh-backend-o2af.onrender.com/api", // Your backend API base URL
 })
 
 // Add a request interceptor to include the auth token in headers
