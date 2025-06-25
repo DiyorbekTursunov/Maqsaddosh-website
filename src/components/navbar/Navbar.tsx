@@ -104,6 +104,10 @@ function Navbar() {
     navigate(path);
   };
 
+  // Handle overlay click to close modal
+  const handleOverlayClick = () => {
+    setIsModalOpen(false);
+  };
 
   return (
     <div className="navbar py-4">
@@ -213,6 +217,15 @@ function Navbar() {
             )
           )}
         </div>
+
+        {/* Overlay - only shows when modal is open */}
+        {isModalOpen && (
+          <div
+            className="fixed inset-0 bg-black opacity-10 z-20"
+            onClick={handleOverlayClick}
+          />
+        )}
+
         {/* setting modal */}
         {currentUser && (
           <div
