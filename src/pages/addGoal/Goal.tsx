@@ -1,133 +1,147 @@
-import { useState, useEffect, useCallback, type FormEvent, type ChangeEvent } from "react"
-import { useNavigate } from "react-router-dom"
-import apiService from "../../api/apiService"
-import type { Direction, SubDirection } from "../../types"
-import Navbar from "../../components/navbar/Navbar"
-import { ChevronDown } from "lucide-react"
+import { useState, useEffect, useCallback, type FormEvent, type ChangeEvent } from "react";
+import { useNavigate } from "react-router-dom";
+import apiService from "../../api/apiService";
+import type { Direction, SubDirection } from "../../types";
+import Navbar from "../../components/navbar/Navbar";
+import { ChevronDown } from "lucide-react";
 
 // Types
 interface ApiResponse<T> {
-  data: T
-  success: boolean
-  error?: string
+  data: T;
+  success: boolean;
+  error?: string;
 }
 
 interface GoalFormData {
-  name: string
-  description: string
-  directionId: string
-  subDirectionId: string | null
-  duration: number
-  visibility: 'PUBLIC' | 'PRIVATE'
-  phone: string
-  telegram: string
-  endDate: string
+  name: string;
+  description: string;
+  directionId: string;
+  subDirectionId: string | null;
+  duration: number;
+  visibility: "PUBLIC" | "PRIVATE";
+  phone: string;
+  telegram: string;
+  endDate: string;
 }
 
-type VisibilityKey = 'public' | 'private'
-type VisibilityValue = 'PUBLIC' | 'PRIVATE'
-type PeriodOption = '7' | '14' | '21' | '28'
+type VisibilityKey = "public" | "private";
+type VisibilityValue = "PUBLIC" | "PRIVATE";
+type PeriodOption = "7" | "14" | "21" | "28";
 
 // Constants
 const VISIBILITY_MAP: Record<VisibilityKey, VisibilityValue> = {
   public: "PUBLIC",
   private: "PRIVATE",
-} as const
+} as const;
 
 const VISIBILITY_DISPLAY_MAP: Record<VisibilityValue, string> = {
   PUBLIC: "Ommaviy (Barchaga ko'rinsin)",
   PRIVATE: "Shaxsiy (Faqat menga ko'rinsin)",
-} as const
+} as const;
 
-const PERIOD_OPTIONS: readonly PeriodOption[] = ["7", "14", "21", "28"] as const
+const PERIOD_OPTIONS: readonly PeriodOption[] = ["7", "14", "21", "28"] as const;
 
 const INPUT_BASE_CLASS =
-  "w-full h-14 px-5 py-3.5 bg-slate-100 rounded-xl text-slate-800 placeholder-slate-500 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+  "w-full h-14 px-5 py-3.5 bg-slate-100 rounded-xl text-slate-800 placeholder-slate-500 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow";
 
 // Custom hooks
 const useDirections = () => {
-  const [directions, setDirections] = useState<Direction[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [directions, setDirections] = useState<Direction[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDirections = async () => {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
       try {
-        const response = await apiService.get<ApiResponse<Direction[]>>("/directions")
-        setDirections(response.data.data)
+        const response = await apiService.get<ApiResponse<Direction[]>>("/directions");
+        setDirections(response.data.data);
       } catch (err) {
-        console.error("Yo'nalishlar yuklanmadi", err)
-        setError("Yo'nalishlarni yuklashda xatolik yuz berdi")
+        console.error("Yo'nalishlar yuklanmadi", err);
+        setError("Yo'nalishlarni yuklashda xatolik yuz berdi");
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
-    fetchDirections()
-  }, [])
+    };
+    fetchDirections();
+  }, []);
 
-  return { directions, isLoading, error }
-}
+  return { directions, isLoading, error };
+};
 
 const useSubDirections = (selectedDirection: string) => {
-  const [subDirections, setSubDirections] = useState<SubDirection[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [message, setMessage] = useState("")
+  const [subDirections, setSubDirections] = useState<SubDirection[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     if (!selectedDirection) {
-      setSubDirections([])
-      setMessage("")
-      return
+      setSubDirections([]);
+      setMessage("");
+      return;
     }
 
     const fetchSubDirections = async () => {
-      setIsLoading(true)
-      setSubDirections([])
-      setMessage("")
+      setIsLoading(true);
+      setSubDirections([]);
+      setMessage("");
 
       try {
-        const response = await apiService.get<ApiResponse<SubDirection[]>>(`/directions/${selectedDirection}`)
+        const response = await apiService.get<ApiResponse<SubDirection[]>>(
+          `/directions/${selectedDirection}`
+        );
 
         if (response.data.success) {
           if (response.data.data && response.data.data.length > 0) {
-            setSubDirections(response.data.data)
+            setSubDirections(response.data.data);
           } else {
-            setMessage("Bu yo'nalish uchun ichki bo'limlar mavjud emas.")
+            setMessage("Bu yo'nalish uchun ichki bo'limlar mavjud emas.");
           }
         } else {
-          const errorMsg = response.data.error || "Ichki yo'nalishlar ma'lumotlari noto'g'ri."
-          setMessage("Ichki yo'nalishlarni yuklashda xatolik: " + errorMsg)
+          const errorMsg = response.data.error || "Ichki yo'nalishlar ma'lumotlari noto'g'ri.";
+          setMessage("Ichki yo'nalishlarni yuklashda xatolik: " + errorMsg);
         }
       } catch (err) {
-        console.error("Ichki yo'nalishlar yuklashda xatolik:", err)
-        setMessage("Ichki yo'nalishlarni yuklashda server xatoligi yuz berdi.")
+        console.error("Ichki yo'nalishlar yuklashda xatolik:", err);
+        setMessage("Ichki yo'nalishlarni yuklashda server xatoligi yuz berdi.");
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchSubDirections()
-  }, [selectedDirection])
+    fetchSubDirections();
+  }, [selectedDirection]);
 
-  return { subDirections, isLoading, message }
-}
+  return { subDirections, isLoading, message };
+};
 
 // Utility functions
 const calculateEndDate = (durationInDays: number): string => {
-  const currentDate = new Date()
-  const endDate = new Date(currentDate)
-  endDate.setDate(currentDate.getDate() + durationInDays)
-  endDate.setHours(23, 59, 59, 999)
-  return endDate.toISOString()
-}
+  const currentDate = new Date();
+  const endDate = new Date(currentDate);
+  endDate.setDate(currentDate.getDate() + durationInDays);
+  endDate.setHours(23, 59, 59, 999);
+  return endDate.toISOString();
+};
 
 const validateForm = (
-  formData: Omit<GoalFormData, 'endDate'> & { selectedPeriod: PeriodOption | null },
+  formData: Omit<GoalFormData, "endDate"> & { selectedPeriod: PeriodOption | null },
   hasSubDirections: boolean
 ): boolean => {
-  const { name, directionId, subDirectionId, selectedPeriod, visibility, phone, telegram } = formData
+  const { name, directionId, subDirectionId, selectedPeriod, visibility, phone, telegram } = formData;
+
+  // Phone number validation: must match +998 XX XXX XXXX
+  const phoneRegex = /^\+998\s[0-9]{2}\s[0-9]{3}\s[0-9]{4}$/;
+  if (!phoneRegex.test(phone)) {
+    return false; // Invalid phone number
+  }
+
+  // Telegram username validation: must start with @, followed by 5-32 alphanumeric or underscore
+  const telegramRegex = /^@[A-Za-z0-9_]{5,32}$/;
+  if (!telegramRegex.test(telegram)) {
+    return false; // Invalid Telegram username
+  }
 
   return !!(
     name.trim() &&
@@ -137,12 +151,12 @@ const validateForm = (
     visibility &&
     phone.trim() &&
     telegram.trim()
-  )
-}
+  );
+};
 
 // Main component
 export default function AddGoal(): JSX.Element {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   // Form state
   const [formData, setFormData] = useState({
@@ -150,45 +164,72 @@ export default function AddGoal(): JSX.Element {
     description: "",
     phone: "",
     telegram: "",
-  })
-
-  const [selectedDirection, setSelectedDirection] = useState("")
-  const [selectedSubDirection, setSelectedSubDirection] = useState("")
-  const [selectedPeriod, setSelectedPeriod] = useState<PeriodOption | null>(null)
-  const [visibility, setVisibility] = useState<VisibilityKey | "">("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  });
+  const [formErrors, setFormErrors] = useState({
+    phone: "",
+    telegram: "",
+  });
+  const [selectedDirection, setSelectedDirection] = useState("");
+  const [selectedSubDirection, setSelectedSubDirection] = useState("");
+  const [selectedPeriod, setSelectedPeriod] = useState<PeriodOption | null>(null);
+  const [visibility, setVisibility] = useState<VisibilityKey | "">("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Custom hooks
-  const { directions, isLoading: isLoadingDirections, error: directionsError } = useDirections()
-  const { subDirections, isLoading: isLoadingSubDirections, message: subDirectionsMessage } = useSubDirections(selectedDirection)
+  const { directions, isLoading: isLoadingDirections, error: directionsError } = useDirections();
+  const { subDirections, isLoading: isLoadingSubDirections, message: subDirectionsMessage } =
+    useSubDirections(selectedDirection);
 
   // Handlers
-  const handleInputChange = useCallback((field: keyof typeof formData) =>
-    (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setFormData(prev => ({ ...prev, [field]: e.target.value }))
-    }, []
-  )
+  const handleInputChange = useCallback(
+    (field: keyof typeof formData) => (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const value = e.target.value;
+      setFormData((prev) => ({ ...prev, [field]: value }));
+
+      // Validate phone
+      if (field === "phone") {
+        const phoneRegex = /^\+998\s[0-9]{2}\s[0-9]{3}\s[0-9]{4}$/;
+        setFormErrors((prev) => ({
+          ...prev,
+          phone: value && !phoneRegex.test(value)
+            ? "Telefon raqami +998 XX XXX XXXX formatida bo'lishi kerak"
+            : "",
+        }));
+      }
+
+      // Validate Telegram
+      if (field === "telegram") {
+        const telegramRegex = /^@[A-Za-z0-9_]{5,32}$/;
+        setFormErrors((prev) => ({
+          ...prev,
+          telegram: value && !telegramRegex.test(value)
+            ? "Telegram username @ bilan boshlanishi va 5-32 ta harf, raqam yoki pastki chiziqdan iborat bo'lishi kerak"
+            : "",
+        }));
+      }
+    },
+    []
+  );
 
   const handleDirectionChange = useCallback((e: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedDirection(e.target.value)
-    setSelectedSubDirection("") // Reset sub-direction when direction changes
-  }, [])
+    setSelectedDirection(e.target.value);
+    setSelectedSubDirection(""); // Reset sub-direction when direction changes
+  }, []);
 
   const handleSubDirectionChange = useCallback((e: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedSubDirection(e.target.value)
-  }, [])
+    setSelectedSubDirection(e.target.value);
+  }, []);
 
   const handleVisibilityChange = useCallback((e: ChangeEvent<HTMLSelectElement>) => {
-    setVisibility(e.target.value as VisibilityKey)
-  }, [])
+    setVisibility(e.target.value as VisibilityKey);
+  }, []);
 
   const handlePeriodSelect = useCallback((period: PeriodOption) => {
-    setSelectedPeriod(period)
-  }, [])
-
+    setSelectedPeriod(period);
+  }, []);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+    e.preventDefault();
 
     const formValidationData = {
       ...formData,
@@ -196,19 +237,24 @@ export default function AddGoal(): JSX.Element {
       subDirectionId: selectedSubDirection,
       selectedPeriod,
       visibility,
-    }
+    };
 
     if (!validateForm(formValidationData, subDirections.length > 0)) {
-      alert("Iltimos, barcha majburiy maydonlarni to'ldiring!")
-      return
+      alert("Iltimos, barcha maydonlarni to'g'ri to'ldiring!");
+      return;
     }
 
-    if (!selectedPeriod || !visibility) return // TypeScript guard
+    if (formErrors.phone || formErrors.telegram) {
+      alert("Iltimos, telefon raqami yoki Telegram username xatolarini tuzating!");
+      return;
+    }
 
-    setIsSubmitting(true)
+    if (!selectedPeriod || !visibility) return;
+
+    setIsSubmitting(true);
 
     try {
-      const duration = parseInt(selectedPeriod, 10)
+      const duration = parseInt(selectedPeriod, 10);
       const goalData: GoalFormData = {
         name: formData.name,
         description: formData.description,
@@ -219,24 +265,21 @@ export default function AddGoal(): JSX.Element {
         phone: formData.phone,
         telegram: formData.telegram,
         endDate: calculateEndDate(duration),
-      }
+      };
 
-      await apiService.post<ApiResponse<unknown>>("/goals", goalData)
-    //   navigate("/")
-
-
-
+      await apiService.post<ApiResponse<unknown>>("/goals", goalData);
+      navigate("/my-goals");
     } catch (err) {
-      console.error("Maqsad saqlanmadi: Xatolik yuz berdi", err)
-      alert("Maqsad saqlanmadi: Xatolik yuz berdi. Tafsilotlar uchun konsolni tekshiring.")
+      console.error("Maqsad saqlanmadi: Xatolik yuz berdi", err);
+      alert("Maqsad saqlanmadi: Xatolik yuz berdi. Tafsilotlar uchun konsolni tekshiring.");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   // Computed values
-  const isFormDisabled = isLoadingDirections || isLoadingSubDirections
-  const isSubmitDisabled = isSubmitting || isFormDisabled
+  const isFormDisabled = isLoadingDirections || isLoadingSubDirections;
+  const isSubmitDisabled = isSubmitting || isFormDisabled;
 
   return (
     <div className="min-h-screen bg-white">
@@ -259,7 +302,7 @@ export default function AddGoal(): JSX.Element {
               type="text"
               placeholder="Maqsad nomi"
               value={formData.name}
-              onChange={handleInputChange('name')}
+              onChange={handleInputChange("name")}
               required
               minLength={3}
               className={INPUT_BASE_CLASS}
@@ -271,7 +314,7 @@ export default function AddGoal(): JSX.Element {
               placeholder="Izoh qoldirish"
               rows={3}
               value={formData.description}
-              onChange={handleInputChange('description')}
+              onChange={handleInputChange("description")}
               className={`${INPUT_BASE_CLASS} resize-none leading-relaxed`}
               disabled={isFormDisabled}
             />
@@ -324,9 +367,11 @@ export default function AddGoal(): JSX.Element {
 
             {/* Sub Directions Message */}
             {!isLoadingSubDirections && subDirectionsMessage && (
-              <p className={`text-sm mt-1 ${
-                subDirectionsMessage.includes("xatolik") ? "text-red-500" : "text-gray-600"
-              }`}>
+              <p
+                className={`text-sm mt-1 ${
+                  subDirectionsMessage.includes("xatolik") ? "text-red-500" : "text-gray-600"
+                }`}
+              >
                 {subDirectionsMessage}
               </p>
             )}
@@ -377,27 +422,40 @@ export default function AddGoal(): JSX.Element {
             </div>
 
             {/* Phone Input */}
-            <input
-              type="tel"
-              placeholder="Telefon raqam kiriting"
-              value={formData.phone}
-              onChange={handleInputChange('phone')}
-              required
-              pattern="^\+?[0-9\s\-()]{7,15}$" // Basic phone number validation
-              className={INPUT_BASE_CLASS}
-              disabled={isFormDisabled}
-            />
+            <div className="relative">
+              <input
+                type="tel"
+                placeholder="+998 12 345 6789"
+                value={formData.phone}
+                onChange={handleInputChange("phone")}
+                required
+                pattern="\+998\s[0-9]{2}\s[0-9]{3}\s[0-9]{4}"
+                title="Telefon raqami +998 XX XXX XXXX formatida bo'lishi kerak (masalan, +998 12 345 6789)"
+                className={`${INPUT_BASE_CLASS} ${formErrors.phone ? "border-red-500" : ""}`}
+                disabled={isFormDisabled}
+              />
+              {formErrors.phone && (
+                <p className="text-sm text-red-500 mt-1">{formErrors.phone}</p>
+              )}
+            </div>
 
             {/* Telegram Input */}
-            <input
-              type="text"
-              placeholder="Telegram user kiriting"
-              value={formData.telegram}
-              onChange={handleInputChange('telegram')}
-              required
-              className={INPUT_BASE_CLASS}
-              disabled={isFormDisabled}
-            />
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="@Username"
+                value={formData.telegram}
+                onChange={handleInputChange("telegram")}
+                required
+                pattern="@[A-Za-z0-9_]{5,32}"
+                title="Telegram username @ bilan boshlanishi va 5-32 ta harf, raqam yoki pastki chiziqdan iborat bo'lishi kerak"
+                className={`${INPUT_BASE_CLASS} ${formErrors.telegram ? "border-red-500" : ""}`}
+                disabled={isFormDisabled}
+              />
+              {formErrors.telegram && (
+                <p className="text-sm text-red-500 mt-1">{formErrors.telegram}</p>
+              )}
+            </div>
 
             {/* Submit Button */}
             <button
@@ -411,5 +469,5 @@ export default function AddGoal(): JSX.Element {
         </div>
       </div>
     </div>
-  )
+  );
 }

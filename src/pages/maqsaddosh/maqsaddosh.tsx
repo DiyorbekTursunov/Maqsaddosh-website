@@ -106,7 +106,11 @@ const MaqsaddoshSocialFeed: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="text-center py-8">Loading...</div>;
+    return (
+      <div className="w-full h-screen flex justify-center items-center py-16">
+        <span className="text-gray-600 text-lg">Loading...</span>
+      </div>
+    );
   }
 
   if (error) {
