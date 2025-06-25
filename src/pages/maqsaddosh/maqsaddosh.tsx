@@ -137,7 +137,10 @@ const MaqsaddoshSocialFeed: React.FC = () => {
                     <div className="flex items-center gap-3 mb-2">
                       <img
                         loading="lazy"
-                        src={imageUrls[goal.creator.avatar || defaultAvatar] || defaultAvatar}
+                        src={
+                          imageUrls[goal.creator.avatar || defaultAvatar] ||
+                          defaultAvatar
+                        }
                         alt={goal.creator.fullName}
                         className="w-8 h-8 rounded-full"
                         onError={(e) => (e.currentTarget.src = defaultAvatar)}
@@ -159,13 +162,30 @@ const MaqsaddoshSocialFeed: React.FC = () => {
                     </div>
 
                     <div className="w-33 h-9 rounded-full bg-gray-100 flex justify-center items-center gap-1 mb-2.5 text-gray-500 text-sm">
-                      <img
-                        loading="lazy"
-                        className="w-5 h-5"
-                        src="/images/flag.svg"
-                        alt="flag"
-                        onError={(e) => (e.currentTarget.src = defaultAvatar)}
-                      />
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M4.29167 1.6665V18.3332"
+                          stroke="#4A4E5A"
+                          stroke-width="1.5"
+                          stroke-miterlimit="10"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M4.29167 3.3335H13.625C15.875 3.3335 16.375 4.5835 14.7917 6.16683L13.7917 7.16683C13.125 7.8335 13.125 8.91683 13.7917 9.50016L14.7917 10.5002C16.375 12.0835 15.7917 13.3335 13.625 13.3335H4.29167"
+                          stroke="#4A4E5A"
+                          stroke-width="1.5"
+                          stroke-miterlimit="10"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
                       <span className="text-base font-semibold">
                         {calculateDaysRemaining(goal.endDate)} kun qoldi
                       </span>
@@ -237,16 +257,24 @@ const MaqsaddoshSocialFeed: React.FC = () => {
                           +{goal.participants.length}
                         </span>
                         <div className="flex -space-x-2">
-                          {goal.participants.slice(0, 3).map((participant, index) => (
-                            <img
-                              key={index}
-                              loading="lazy"
-                              className="w-6 h-6 rounded-full border-2 border-white"
-                              src={imageUrls[participant.user.avatar || defaultAvatar] || defaultAvatar}
-                              alt="Participant"
-                              onError={(e) => (e.currentTarget.src = defaultAvatar)}
-                            />
-                          ))}
+                          {goal.participants
+                            .slice(0, 3)
+                            .map((participant, index) => (
+                              <img
+                                key={index}
+                                loading="lazy"
+                                className="w-6 h-6 rounded-full border-2 border-white"
+                                src={
+                                  imageUrls[
+                                    participant.user.avatar || defaultAvatar
+                                  ] || defaultAvatar
+                                }
+                                alt="Participant"
+                                onError={(e) =>
+                                  (e.currentTarget.src = defaultAvatar)
+                                }
+                              />
+                            ))}
                         </div>
                       </div>
                     </div>

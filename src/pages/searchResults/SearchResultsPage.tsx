@@ -22,7 +22,7 @@ function SearchResultsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(true)
-  const [message, setMessage] = useState("") // For "No results found" type messages
+  const [message, setMessage] = useState("")
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search)
@@ -35,9 +35,10 @@ function SearchResultsPage() {
       setMessage("")
       apiService
         .get<{ success: boolean; data: Goal[]; error?: string; message?: string }>(
-          `/goals?q=${encodeURIComponent(q)}`,
+          `/goals/search?q=${encodeURIComponent(q)}` // Updated endpoint
         )
         .then((response) => {
+          console.log("Search response:", response.data) // Debug log
           if (response.data.success) {
             setSearchResults(response.data.data)
             if (response.data.data.length === 0) {
@@ -49,7 +50,7 @@ function SearchResultsPage() {
         })
         .catch((err: any) => {
           console.error("Search error:", err)
-              setMessage(`"${q}" uchun natija topilmadi.`)
+          setMessage(`"${q}" uchun natija topilmadi.`)
         })
         .finally(() => {
           setIsLoading(false)
@@ -65,7 +66,7 @@ function SearchResultsPage() {
   }
 
   const handleBackClick = () => {
-    navigate(-1) // Go back to the previous page
+    navigate(-1)
   }
 
   return (
@@ -80,7 +81,7 @@ function SearchResultsPage() {
           <h1 className="text-2xl font-semibold text-gray-800 truncate">
             Qidiruv natijalari: <span className="text-blue-600">"{searchTerm}"</span>
           </h1>
-          <div className="w-20"></div> {/* Spacer */}
+          <div className="w-20"></div>
         </div>
 
         {isLoading && <p className="text-gray-600 text-center py-10">Qidirilmoqda...</p>}
@@ -106,6 +107,7 @@ function SearchResultsPage() {
                       src={goal.creator.avatar || defaultAvatar}
                       alt={goal.creator.fullName}
                       className="w-9 h-9 rounded-full object-cover"
+                      onError={(e) => (e.currentTarget.src = defaultAvatar)} // Added fallback
                     />
                     <span className="text-[16px] text-gray-700 truncate font-medium">{goal.creator.fullName}</span>
                   </div>
@@ -129,6 +131,7 @@ function SearchResultsPage() {
                             src={(p as any).avatar || defaultAvatar}
                             alt="participant"
                             className="w-5 h-5 rounded-full border-2 border-white object-cover"
+                            onError={(e) => (e.currentTarget.src = defaultAvatar)} // Added fallback
                           />
                         ))}
                       </div>
@@ -147,7 +150,7 @@ function SearchResultsPage() {
         )}
       </div>
     </div>
-  )
+)
 }
 
 export default SearchResultsPage

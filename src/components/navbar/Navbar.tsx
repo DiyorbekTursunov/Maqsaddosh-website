@@ -176,13 +176,13 @@ function Navbar() {
               Maqsad qo'shish
             </span>
           </button>
-          <button className="flex justify-center items-center md:w-11 md:h-11 w-10 h-10 rounded-[8px] border-[0.5px] border-gray-100 bg-gray-50 cursor-pointer hover:bg-gray-100 active:bg-gray-200">
+          {/* <button className="flex justify-center items-center md:w-11 md:h-11 w-10 h-10 rounded-[8px] border-[0.5px] border-gray-100 bg-gray-50 cursor-pointer hover:bg-gray-100 active:bg-gray-200">
             <img
               className="w-6 h-6"
               src={notificat || "/placeholder.svg"}
               alt="Notifications"
             />
-          </button>
+          </button> */}
           {currentUser ? (
             <button
               className="flex justify-center items-center lg:w-11 lg:h-11 w-10 h-10 rounded-[8px] border-none cursor-pointer hover:opacity-65 active:opacity-50 transition-all duration-300"
