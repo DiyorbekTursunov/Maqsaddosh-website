@@ -44,7 +44,7 @@ function Navbar() {
       try {
         setIsLoadingUser(true);
         const response = await fetch(
-          "http://api.maqsaddosh.uz/api/me",
+          "https://api.maqsaddosh.uz/api/me",
           {
             headers: {
               Authorization: `Bearer ${token}`,

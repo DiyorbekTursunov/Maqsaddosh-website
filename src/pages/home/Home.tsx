@@ -78,7 +78,7 @@ function Home() {
 
 
       try {
-        const response = await fetch('http://api.maqsaddosh.uz/api/directions')
+        const response = await fetch('https://api.maqsaddosh.uz/api/directions')
         const data: { data: Direction[] } = await response.json()
         const fetchedDirections = data.data.map((dir) => ({
           ...dir,
