@@ -178,7 +178,7 @@ export default function GoalDetail() {
     setIsJoining(true);
     try {
       const response = await axios.post(
-        `https://maqsaddosh-backend-o2af.onrender.com/api/goals/${id}/join`,
+        `https://api.maqsaddosh.uz/api/goals/${id}/join`,
         {},
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
