@@ -44,7 +44,7 @@ function Navbar() {
       try {
         setIsLoadingUser(true);
         const response = await fetch(
-          "https://maqsaddosh-backend-o2af.onrender.com/api/me",
+          "http://api.maqsaddosh.uz/api/me",
           {
             headers: {
               Authorization: `Bearer ${token}`,

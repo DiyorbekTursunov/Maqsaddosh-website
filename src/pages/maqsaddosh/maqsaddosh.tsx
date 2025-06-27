@@ -128,7 +128,7 @@ const MaqsaddoshSocialFeed: React.FC = () => {
           <div className="max-w-[995px] mx-auto space-y-8">
             {goals.length === 0 ? (
               <p className="text-center text-gray-600">
-                You haven't joined any goals yet.
+                Siz hali hech qanday maqsadlarga qoʻshilmagansiz.
               </p>
             ) : (
               goals
