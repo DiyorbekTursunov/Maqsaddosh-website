@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import apiService from "../../api/apiService";
@@ -149,8 +147,8 @@ function Home() {
     fetchDirections();
   }, []);
 
-  const handleDirectionClick = (directionId: string) => {
-    navigate(`/edu/${directionId}`);
+  const handleDirectionClick = (directionId: string, style: CategoryStyle) => {
+    navigate(`/edu/${directionId}`, { state: { style } });
   };
 
   const visibleDirections = showAll ? directions : directions.slice(0, 6);
@@ -185,7 +183,7 @@ function Home() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.3, ease: "easeOut" }}
-                      onClick={() => handleDirectionClick(item.id)}
+                      onClick={() => handleDirectionClick(item.id, item.style)}
                     >
                       <Cart
                         title={item.name}

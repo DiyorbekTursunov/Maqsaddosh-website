@@ -353,7 +353,7 @@ function Profile() {
                           {field.label}
                         </p>
                         <p className="text-gray-700 font-manrope text-[14px]">
-                          {field.value}
+                          {field.label === "Avatar" ? field.value.slice(0, 20) + "..." : field.value}
                         </p>
                       </div>
                       <button

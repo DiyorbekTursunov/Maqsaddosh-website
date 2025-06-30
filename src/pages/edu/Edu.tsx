@@ -1,62 +1,65 @@
-"use client"
+import { useState, useEffect } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import apiService from "../../api/apiService";
+import type { SubDirection } from "../../types";
+import Navbar from "../../components/navbar/Navbar";
+import Hero from "../../components/hero/Hero";
+import Cart from "../../components/cart/Cart"; // Add this
+import eduIcon from "../../assets/images/teacher.svg";
 
-import { useState, useEffect } from "react"
-import { useParams, useNavigate } from "react-router-dom"
-import apiService from "../../api/apiService"
-import type { SubDirection, Direction } from "../../types"
-
-import Navbar from "../../components/navbar/Navbar"
-import Hero from "../../components/hero/Hero" // Assuming Hero is generic or not needed here
-import eduIcon from "../../assets/images/teacher.svg" // Default icon
-
+// Interface for frontend category styling
+interface CategoryStyle {
+  icon: string;
+  bgColor: string;
+  iconColor: string;
+}
 
 function Edu() {
-  const { directionsId } = useParams<{ directionsId: string }>()
-  const [direction, setDirection] = useState<SubDirection[] | null>(null)
-  const [error, setError] = useState("")
-  const [isLoading, setIsLoading] = useState(true)
-  const navigate = useNavigate()
+  const { directionsId } = useParams<{ directionsId: string }>();
+  const [direction, setDirection] = useState<SubDirection[] | null>(null);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const parentStyle = location.state?.style as CategoryStyle | undefined;
 
   useEffect(() => {
     if (!directionsId) {
-      setError("Yo'nalish ID topilmadi.")
-      setIsLoading(false)
-      return
+      setError("Yo'nalish ID topilmadi.");
+      setIsLoading(false);
+      return;
     }
     const fetchDirectionDetails = async () => {
-      setIsLoading(true)
-      setError("")
+      setIsLoading(true);
+      setError("");
       try {
         // This endpoint should return the direction with its subDirections
         const response = await apiService.get<{ success: boolean; data: SubDirection[] }>(
           `/directions/${directionsId}`, // Assuming this endpoint returns direction name and its subdirections
-        )
+        );
         if (response.data.success) {
-          setDirection(response.data.data)
+          setDirection(response.data.data);
         } else {
-          setError(response.data.error || "Yo'nalish ma'lumotlari yuklanmadi")
+          setError(response.data.error || "Yo'nalish ma'lumotlari yuklanmadi");
         }
       } catch (err: any) {
-        console.error("Direction details error:", err)
-        setError(err.response?.data?.error || "Yo'nalish ma'lumotlari yuklanmadi")
+        console.error("Direction details error:", err);
+        setError(err.response?.data?.error || "Yo'nalish ma'lumotlari yuklanmadi");
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
-    fetchDirectionDetails()
-  }, [directionsId])
+    };
+    fetchDirectionDetails();
+  }, [directionsId]);
 
   const handleSubdirectionClick = (subdirectionId: string) => {
-    navigate(`/goals?subdirectionId=${subdirectionId}`)
-  }
-
-
-  console.log(direction);
+    navigate(`/goals?subdirectionId=${subdirectionId}`);
+  };
 
   return (
     <>
       <Navbar />
-      <Hero /> {/* Consider if Hero component is appropriate here or needs props */}
+      <Hero />
       <section className="edu py-10">
         <div className="container max-w-6xl w-full mx-auto px-5">
           {isLoading && <p className="text-center text-gray-600">Yuklanmoqda...</p>}
@@ -65,23 +68,21 @@ function Edu() {
           {direction && !isLoading && !error && (
             <>
               <p className="flex md:text-[20px] text-lg leading-[130%] tracking-[0%] font-manrope text-gray-900 mb-5">
-                 Maqsad yo’nalishlari
+                Maqsad yo’nalishlari
               </p>
               {direction && direction.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full pb-10">
                   {direction.map((sub) => (
                     <div
                       key={sub.id}
-                      className="flex items-center justify-between h-20 rounded-2xl border-[0.5px] border-gray-100 bg-[#DBDFFC] pr-5 pl-4 cursor-pointer hover:shadow-lg transition"
                       onClick={() => handleSubdirectionClick(sub.id)}
+                      className="cursor-pointer"
                     >
-                      <span className="font-manrope font-medium text-[20px] leading-[130%] tracking-[0%] text-gray-900">
-                        {sub.name}
-                      </span>
-                      <img
-                        src={eduIcon || "/placeholder.svg"} // Consider dynamic icons if available
-                        alt={sub.name}
-                        className="w-10 h-10 rounded-[8px] bg-[#7182FE] p-2"
+                      <Cart
+                        title={sub.name}
+                        icon={parentStyle?.icon || eduIcon}
+                        bgColor={parentStyle?.bgColor || "bg-[#DBDFFC]"}
+                        iconColor={parentStyle?.iconColor || "bg-[#7182FE]"}
                       />
                     </div>
                   ))}
@@ -95,7 +96,7 @@ function Edu() {
         </div>
       </section>
     </>
-  )
+  );
 }
 
-export default Edu
+export default Edu;

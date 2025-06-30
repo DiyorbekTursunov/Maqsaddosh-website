@@ -20,15 +20,42 @@ function Registr() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
+  const [emailError, setEmailError] = useState("")
   const navigate = useNavigate()
   const location = useLocation()
   const { setToken } = useAuth()
 
   const from = location.state?.from?.pathname || "/home"
 
+  // Stricter email regex: allows letters, numbers, dots, hyphens, underscores in local part
+  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+
+  // Check for random or suspicious email patterns
+  const isRandomEmail = (email: string): boolean => {
+    const localPart = email.split("@")[0]
+    const numericCount = (localPart.match(/[0-9]/g) || []).length
+    const letterCount = (localPart.match(/[a-zA-Z]/g) || []).length
+    // Flag as random if numbers exceed 1.5x letters or local part is too long
+    return numericCount > letterCount * 1.5 || localPart.length > 20
+  }
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+    setEmailError("")
+
+    // Client-side email validation
+    if (!emailRegex.test(email)) {
+      setEmailError("Iltimos, to'g'ri email manzilini kiriting (masalan, diyorbek@gmail.com)")
+      return
+    }
+
+    // Check for random or suspicious email patterns
+    if (isRandomEmail(email)) {
+      setEmailError("Email manzili haqiqiy bo'lishi kerak (masalan, ism.familiya@gmail.com)")
+      return
+    }
+
     try {
       const response = await apiService.post("/signup", { fullName, email, password })
       if (response.data.success) {
@@ -46,20 +73,31 @@ function Registr() {
     }
   }
 
+  // Validate email on blur for real-time feedback
+  const handleEmailBlur = () => {
+    setEmailError("")
+    if (!email) return
+
+    if (!emailRegex.test(email)) {
+      setEmailError("Iltimos, to'g'ri email manzilini kiriting (masalan, diyorbek@gmail.com)")
+      return
+    }
+    if (isRandomEmail(email)) {
+      setEmailError("Email manzili haqiqiy bo'lishi kerak (masalan, ism.familiya@gmail.com)")
+      return
+    }
+  }
+
   const handleGoogleLogin = () => {
-    // Ensure these environment variables are set in your .env file (e.g., .env.local for Vite)
-    // VITE_GOOGLE_CLIENT_ID=your_google_client_id
-    // VITE_GOOGLE_REDIRECT_URI=http://localhost:3000/api/google (or your frontend callback if handling there)
     const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${import.meta.env.VITE_GOOGLE_CLIENT_ID}&redirect_uri=${import.meta.env.VITE_GOOGLE_REDIRECT_URI}&response_type=code&scope=email%20profile`
     window.location.href = googleAuthUrl
   }
 
-  // Setup Telegram callback on the window object
+  // Setup Telegram callback
   useEffect(() => {
     window.handleTelegramLogin = (user: any) => {
-      // `user` is the object from Telegram
       apiService
-        .get("/telegram", { params: user }) // Send all user data from Telegram as query params
+        .get("/telegram", { params: user })
         .then((response) => {
           if (response.data.success) {
             setToken(response.data.token)
@@ -73,7 +111,6 @@ function Registr() {
           setError(err.response?.data?.error || "Telegram orqali ro'yxatdan o'tishda xatolik.")
         })
     }
-    // Cleanup the global function when the component unmounts
     return () => {
       delete window.handleTelegramLogin
     }
@@ -97,27 +134,16 @@ function Registr() {
           </span>
         </button>
 
-        {/* Telegram Login Button - ensure VITE_TELEGRAM_BOT_USERNAME is set */}
         <script
           async
           src="https://telegram.org/js/telegram-widget.js?22"
-          data-telegram-login={import.meta.env.VITE_TELEGRAM_BOT_USERNAME} // e.g. your_bot_username (without @)
+          data-telegram-login={import.meta.env.VITE_TELEGRAM_BOT_USERNAME}
           data-size="large"
           data-radius="10"
           data-onauth="handleTelegramLogin(user)"
           data-request-access="write"
-          className="telegram-login-button mb-3" // For styling if needed
+          className="telegram-login-button mb-3"
         ></script>
-        {/* Fallback or custom styled button if script doesn't render as expected */}
-        {/* <button
-            onClick={() => {}} // This button would be a placeholder if the script above is used
-            className="flex items-center justify-center w-full sm:h-[56px] h-12 gap-2.5 border border-gray-300 rounded-xl cursor-pointer mb-3 hover:bg-gray-50 transition-colors"
-        >
-            <img className="flex w-5 h-5" src={tg || "/placeholder.svg"} alt="Telegram" />
-            <span className="font-manrope font-semibold text-[16px] leading-[140%] tracking-[0%] text-gray-700">
-                Telegram orqali
-            </span>
-        </button> */}
 
         <div className="flex items-center my-6">
           <hr className="flex-grow border-t border-gray-300" />
@@ -126,34 +152,43 @@ function Registr() {
         </div>
 
         <form onSubmit={handleSignup} className="space-y-4">
-          <input
-            className="w-full sm:h-[56px] h-12 rounded-xl border border-gray-300 bg-gray-50 outline-none px-4 placeholder-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-            type="text"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            placeholder="To'liq ism"
-            required
-          />
-          <input
-            className="w-full sm:h-[56px] h-12 rounded-xl border border-gray-300 bg-gray-50 outline-none px-4 placeholder-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email kiriting"
-            required
-          />
-          <input
-            className="w-full sm:h-[56px] h-12 rounded-xl border border-gray-300 bg-gray-50 outline-none px-4 placeholder-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Parol (kamida 8 belgi)"
-            required
-            minLength={8}
-          />
+          <div>
+            <input
+              className="w-full sm:h-[56px] h-12 rounded-xl border border-gray-300 bg-gray-50 outline-none px-4 placeholder-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="To'liq ism"
+              required
+            />
+          </div>
+          <div>
+            <input
+              className={`w-full sm:h-[56px] h-12 rounded-xl border ${emailError ? "border-red-500" : "border-gray-300"} bg-gray-50 outline-none px-4 placeholder-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500`}
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onBlur={handleEmailBlur}
+              placeholder="Email kiriting (masalan, diyorbek@gmail.com)"
+              required
+            />
+            {emailError && <p className="text-red-500 text-xs mt-1">{emailError}</p>}
+          </div>
+          <div>
+            <input
+              className="w-full sm:h-[56px] h-12 rounded-xl border border-gray-300 bg-gray-50 outline-none px-4 placeholder-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Parol (kamida 8 belgi)"
+              required
+              minLength={8}
+            />
+          </div>
           <button
             type="submit"
             className="w-full sm:h-14 h-12 rounded-xl border-none bg-blue-600 text-white cursor-pointer font-semibold hover:bg-blue-700 transition-colors sm:mb-8 mb-5"
+            disabled={!!emailError}
           >
             RO'YXATDAN O'TISH
           </button>
