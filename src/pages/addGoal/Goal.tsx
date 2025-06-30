@@ -202,7 +202,7 @@ export default function AddGoal(): JSX.Element {
         setFormErrors((prev) => ({
           ...prev,
           phone: value && !phoneRegex.test(value)
-            ? "Telefon raqami XX XXX XXXX, XXXXXXXXX, XX-XXX-XXXX, +998 XX XXX XXXX, +998XXXXXXXXX, +998-XX-XXX-XXXX, 998 XX XXX XXXX, 998XXXXXXXXX yoki 998-XX-XXX-XXXX formatida bo'lishi kerak"
+            ? "Telefon raqamini to'liq kiriting."
             : "",
         }));
       }

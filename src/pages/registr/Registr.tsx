@@ -145,10 +145,10 @@ function Registr() {
           className="telegram-login-button mb-3"
         ></script>
 
-        <div className="flex items-center my-6">
-          <hr className="flex-grow border-t border-gray-300" />
-          <span className="px-3 text-gray-500 text-sm">yoki</span>
-          <hr className="flex-grow border-t border-gray-300" />
+        <div className="flex items-center justify-center my-6">
+          {/* <hr className="flex-grow border-t border-gray-300" /> */}
+          <span className="px-3 text-gray-500 text-center text-sm">yoki</span>
+          {/* <hr className="flex-grow border-t border-gray-300" /> */}
         </div>
 
         <form onSubmit={handleSignup} className="space-y-4">
@@ -169,7 +169,7 @@ function Registr() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onBlur={handleEmailBlur}
-              placeholder="Email kiriting (masalan, diyorbek@gmail.com)"
+              placeholder="Email kiriting"
               required
             />
             {emailError && <p className="text-red-500 text-xs mt-1">{emailError}</p>}
