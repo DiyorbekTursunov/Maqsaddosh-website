@@ -78,11 +78,16 @@ function SearchResultsPage() {
             <ChevronLeft className="text-gray-500" />
             <span>Orqaga</span>
           </button>
-          <h1 className="text-2xl font-semibold text-gray-800 truncate">
+          <h1 className="md:block hidden text-2xl font-semibold text-gray-800 truncate">
             Qidiruv natijalari: <span className="text-blue-600">"{searchTerm}"</span>
           </h1>
           <div className="w-20"></div>
         </div>
+
+
+          <h1 className="md:hidden text-xl font-semibold text-gray-800 truncate mb-4">
+            Qidiruv natijalari: <span className="text-blue-600">"{searchTerm}"</span>
+          </h1>
 
         {isLoading && <p className="text-gray-600 text-center py-10">Qidirilmoqda...</p>}
         {error && <p className="text-red-500 text-center py-10">{error}</p>}

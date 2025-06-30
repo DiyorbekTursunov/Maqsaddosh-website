@@ -125,14 +125,24 @@ const calculateEndDate = (durationInDays: number): string => {
   return endDate.toISOString();
 };
 
+// Optional: Normalize phone number to a consistent format
+// const normalizePhoneNumber = (phone: string): string => {
+//   // Remove all spaces and dashes, ensure +998 prefix
+//   const digits = phone.replace(/[\s-]/g, "");
+//   return digits.startsWith("+998") || digits.startsWith("998")
+//     ? digits
+//     : `+998${digits}`;
+// };
+
 const validateForm = (
   formData: Omit<GoalFormData, "endDate"> & { selectedPeriod: PeriodOption | null },
   hasSubDirections: boolean
 ): boolean => {
   const { name, directionId, subDirectionId, selectedPeriod, visibility, phone, telegram } = formData;
 
-  // Phone number validation: must match +998 XX XXX XXXX
-  const phoneRegex = /^\+998\s[0-9]{2}\s[0-9]{3}\s[0-9]{4}$/;
+  // Phone number validation: accepts +998 XX XXX XXXX, +998XXXXXXXXX, +998-XX-XXX-XXXX,
+  // 998 XX XXX XXXX, 998XXXXXXXXX, 998-XX-XXX-XXXX, XX XXX XXXX, XXXXXXXXX, XX-XXX-XXXX
+  const phoneRegex = /^(?:(?:\+998|998)?(?:[\s-]?(\d{2})[\s-]?(\d{3})[\s-]?(\d{4})|\d{9}))$/;
   if (!phoneRegex.test(phone)) {
     return false; // Invalid phone number
   }
@@ -188,11 +198,11 @@ export default function AddGoal(): JSX.Element {
 
       // Validate phone
       if (field === "phone") {
-        const phoneRegex = /^\+998\s[0-9]{2}\s[0-9]{3}\s[0-9]{4}$/;
+        const phoneRegex = /^(?:(?:\+998|998)?(?:[\s-]?(\d{2})[\s-]?(\d{3})[\s-]?(\d{4})|\d{9}))$/;
         setFormErrors((prev) => ({
           ...prev,
           phone: value && !phoneRegex.test(value)
-            ? "Telefon raqami +998 XX XXX XXXX formatida bo'lishi kerak"
+            ? "Telefon raqami XX XXX XXXX, XXXXXXXXX, XX-XXX-XXXX, +998 XX XXX XXXX, +998XXXXXXXXX, +998-XX-XXX-XXXX, 998 XX XXX XXXX, 998XXXXXXXXX yoki 998-XX-XXX-XXXX formatida bo'lishi kerak"
             : "",
         }));
       }
@@ -262,7 +272,7 @@ export default function AddGoal(): JSX.Element {
         subDirectionId: selectedSubDirection || null,
         duration,
         visibility: VISIBILITY_MAP[visibility],
-        phone: formData.phone,
+        phone: formData.phone, // Optionally use: normalizePhoneNumber(formData.phone)
         telegram: formData.telegram,
         endDate: calculateEndDate(duration),
       };
@@ -425,12 +435,12 @@ export default function AddGoal(): JSX.Element {
             <div className="relative">
               <input
                 type="tel"
-                placeholder="+998 12 345 6789"
+                placeholder="Telefon raqam kiriting"
                 value={formData.phone}
                 onChange={handleInputChange("phone")}
                 required
-                pattern="\+998\s[0-9]{2}\s[0-9]{3}\s[0-9]{4}"
-                title="Telefon raqami +998 XX XXX XXXX formatida bo'lishi kerak (masalan, +998 12 345 6789)"
+                pattern="(?:(?:\+998|998)?(?:[ -]?[0-9]{2}[ -]?[0-9]{3}[ -]?[0-9]{4}|[0-9]{9}))"
+                title="Telefon raqam nog'ri"
                 className={`${INPUT_BASE_CLASS} ${formErrors.phone ? "border-red-500" : ""}`}
                 disabled={isFormDisabled}
               />
@@ -443,7 +453,7 @@ export default function AddGoal(): JSX.Element {
             <div className="relative">
               <input
                 type="text"
-                placeholder="@Username"
+                placeholder="Telegram user kiriting"
                 value={formData.telegram}
                 onChange={handleInputChange("telegram")}
                 required

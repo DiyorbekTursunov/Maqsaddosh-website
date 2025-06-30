@@ -9,7 +9,6 @@ import type { User } from "../../types";
 import logoo from "../../assets/images/logooo.svg";
 import userIcon from "../../assets/images/user.svg";
 import left from "../../assets/images/arrow-left.svg";
-// import defaultProfileImage from "../../assets/images/"
 import userr from "../../assets/images/userr.svg";
 import setting from "../../assets/images/setting-2.svg";
 import message from "../../assets/images/message-text.svg";
@@ -19,6 +18,7 @@ import defaultAvatar from "../../assets/images/profile/default_avatar.png";
 interface UpdateProfileData {
   fullName?: string;
   email?: string;
+  oldPassword?: string;
   password?: string;
   avatar?: string | null;
 }
@@ -33,7 +33,7 @@ function Profile() {
   } = useAuth();
   const navigate = useNavigate();
 
-  const [isEditForm, setIsEditForm] = useState(false);
+  const [editField, setEditField] = useState<"fullName" | "email" | "password" | "avatarUrl" | null>(null);
   const [formMessage, setFormMessage] = useState<{
     type: "success" | "error";
     text: string;
@@ -42,6 +42,7 @@ function Profile() {
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
@@ -71,30 +72,45 @@ function Profile() {
       return;
     }
 
-    if (newPassword && newPassword !== confirmNewPassword) {
-      setFormMessage({ type: "error", text: "Yangi parollar mos kelmadi." });
-      return;
-    }
-    if (newPassword && newPassword.length < 8) {
-      setFormMessage({
-        type: "error",
-        text: "Parol kamida 8 ta belgidan iborat bo'lishi kerak.",
-      });
-      return;
+    if (editField === "password") {
+      if (!oldPassword) {
+        setFormMessage({ type: "error", text: "Eski parolni kiriting." });
+        return;
+      }
+      if (newPassword !== confirmNewPassword) {
+        setFormMessage({ type: "error", text: "Yangi parollar mos kelmadi." });
+        return;
+      }
+      if (newPassword.length < 8) {
+        setFormMessage({
+          type: "error",
+          text: "Yangi parol kamida 8 ta belgidan iborat bo'lishi kerak.",
+        });
+        return;
+      }
     }
 
     const updateData: UpdateProfileData = {};
-    if (fullName !== currentUser.fullName) updateData.fullName = fullName;
-    if (email !== currentUser.email) updateData.email = email;
-    if (newPassword) updateData.password = newPassword;
-    if (avatarUrl !== (currentUser.avatar || "")) updateData.avatar = avatarUrl;
+    if (editField === "fullName" && fullName !== currentUser.fullName) {
+      updateData.fullName = fullName;
+    }
+    if (editField === "email" && email !== currentUser.email) {
+      updateData.email = email;
+    }
+    if (editField === "password" && newPassword) {
+      updateData.oldPassword = oldPassword;
+      updateData.password = newPassword;
+    }
+    if (editField === "avatarUrl" && avatarUrl !== (currentUser.avatar || "")) {
+      updateData.avatar = avatarUrl;
+    }
 
     if (Object.keys(updateData).length === 0) {
       setFormMessage({
         type: "success",
         text: "Hech qanday o'zgarish kiritilmadi.",
       });
-      setIsEditForm(false);
+      setEditField(null);
       return;
     }
 
@@ -108,17 +124,18 @@ function Profile() {
 
       if (response.data.success) {
         setAuthCurrentUser(response.data.data);
+        setOldPassword("");
         setNewPassword("");
         setConfirmNewPassword("");
         setFormMessage({
           type: "success",
-          text: "Profil muvaffaqiyatli yangilandi!",
+          text: "Ma'lumot muvaffaqiyatli yangilandi!",
         });
-        setIsEditForm(false);
+        setEditField(null);
       } else {
         setFormMessage({
           type: "error",
-          text: response.data.error || "Profilni yangilashda xatolik.",
+          text: response.data.error || "Ma'lumotni yangilashda xatolik.",
         });
       }
     } catch (err: any) {
@@ -126,20 +143,34 @@ function Profile() {
       const errorText =
         err.response?.data?.error ||
         err.message ||
-        "Profilni yangilashda kutilmagan xatolik.";
+        "Ma'lumotni yangilashda kutilmagan xatolik.";
       setFormMessage({ type: "error", text: errorText });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const toggleEditForm = () => {
-    setIsEditForm((prev) => !prev);
+  const openEditForm = (field: "fullName" | "email" | "password" | "avatarUrl") => {
+    setEditField(field);
     setFormMessage(null);
-    if (!isEditForm && currentUser) {
+    if (currentUser) {
       setFullName(currentUser.fullName);
       setEmail(currentUser.email);
       setAvatarUrl(currentUser.avatar || "");
+      setOldPassword("");
+      setNewPassword("");
+      setConfirmNewPassword("");
+    }
+  };
+
+  const closeEditForm = () => {
+    setEditField(null);
+    setFormMessage(null);
+    if (currentUser) {
+      setFullName(currentUser.fullName);
+      setEmail(currentUser.email);
+      setAvatarUrl(currentUser.avatar || "");
+      setOldPassword("");
       setNewPassword("");
       setConfirmNewPassword("");
     }
@@ -212,7 +243,7 @@ function Profile() {
         </nav>
 
         <div className="flex md:flex-row flex-col items-start gap-5">
-          <div className="md:flex-col flex w-full md:w-[285px] md:mb-0 mb-10 justify-between md:justify-start md:gap-0 md:pr-5 py-3  rounded-lg">
+          <div className="md:flex-col flex w-full md:w-[285px] md:mb-0 mb-10 justify-between md:justify-start md:gap-0 md:pr-5 py-3 rounded-lg">
             {[
               { label: "Profile", icon: userr, action: () => {}, active: true },
               {
@@ -231,18 +262,24 @@ function Profile() {
                 action: handleLogout,
                 isLogout: true,
               },
-            ].map((item, index, arr) => (
+            ].map((item) => (
               <div key={item.label}>
                 <div
-                  className={`flex items-center gap-3 md:pl-4 px-2 py-3 cursor-pointer hover:bg-gray-100 rounded-md ${
-                    item.active ? "font-semibold" : "text-gray-700"
-                  }`}
+                  className={`flex items-center gap-3 md:pl-4 px-2 py-3 cursor-pointer hover:bg-gray-100 rounded-md`}
                   onClick={item.action}
                 >
                   <img
-                    className="w-6 h-6 hidden md:inline-block"
+                    className={`w-6 h-6 hidden md:inline-block`}
                     src={item.icon || "/placeholder.svg"}
                     alt={item.label}
+                    style={
+                      item.isLogout
+                        ? {
+                            filter:
+                              "invert(32%) sepia(99%) saturate(7492%) hue-rotate(357deg) brightness(97%) contrast(108%)",
+                          }
+                        : {}
+                    }
                   />
                   <p
                     className={`font-manrope text-[16px] ${
@@ -252,14 +289,11 @@ function Profile() {
                     {item.label}
                   </p>
                 </div>
-                {index < arr.length - 2 && !item.isLogout && (
-                  <hr className="my-1 md:hidden" />
-                )}
               </div>
             ))}
           </div>
 
-          <div className="flex-1 max-w-[500px] w-full  p-6 rounded-lg">
+          <div className="flex-1 max-w-[500px] w-full p-6 rounded-lg">
             <img
               className="w-18 h-18 rounded-full mb-4 object-cover"
               src={currentUser.avatar || defaultAvatar}
@@ -287,30 +321,32 @@ function Profile() {
               </div>
             )}
 
-            {!isEditForm ? (
+            {!editField ? (
               <div className="space-y-4">
                 {[
                   {
                     label: "Ism",
                     value: currentUser.fullName,
-                    editAction: toggleEditForm,
+                    editAction: () => openEditForm("fullName"),
                   },
                   {
                     label: "Email",
                     value: currentUser.email,
-                    editAction: toggleEditForm,
+                    editAction: () => openEditForm("email"),
                   },
                   {
                     label: "Parol",
                     value: "••••••••",
-                    editAction: toggleEditForm,
+                    editAction: () => openEditForm("password"),
                     editText: "Yangi parol yaratish",
                   },
+                  {
+                    label: "Avatar",
+                    value: currentUser.avatar || "Avatar yo'q",
+                    editAction: () => openEditForm("avatarUrl"),
+                  },
                 ].map((field) => (
-                  <div
-                    key={field.label}
-                    className="pb-4 border-b border-gray-200 last:border-b-0"
-                  >
+                  <div key={field.label} className="pb-4 last:border-b-0">
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="text-gray-900 font-manrope font-semibold text-[16px] mb-[2px]">
@@ -321,7 +357,7 @@ function Profile() {
                         </p>
                       </div>
                       <button
-                        className="border-none  hover:text-blue-800 font-manrope font-semibold text-[14px] cursor-pointer"
+                        className="border-none hover:text-blue-800 font-manrope font-semibold text-[14px] cursor-pointer"
                         onClick={field.editAction}
                       >
                         {field.editText || "Taxrirlash"}
@@ -332,120 +368,170 @@ function Profile() {
               </div>
             ) : (
               <form onSubmit={handleFormSubmit} className="space-y-6">
-                <div>
-                  <div className="flex justify-between items-center mb-1">
-                    <label
-                      htmlFor="fullName"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      To’liq ism
-                    </label>
-                    <button
-                      type="button"
-                      className="text-sm text-gray-600 hover:text-gray-800 cursor-pointer"
-                      onClick={toggleEditForm}
-                    >
-                      Ortga
-                    </button>
-                  </div>
-                  <input
-                    className="w-full h-10 rounded-lg border border-gray-300 bg-gray-50 outline-none px-3 mt-1"
-                    type="text"
-                    name="fullName"
-                    id="fullName"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Safarali Turotov"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Bu ism profilingizda ko’rinib turadi.
-                  </p>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    E-pochta manzili
-                  </label>
-                  <input
-                    className="w-full h-10 rounded-lg border border-gray-300 bg-gray-50 outline-none px-3 mt-1"
-                    type="email"
-                    name="email"
-                    id="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="ajdarovasimzon@gmail.com"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    U tizimga kirish va hisobingizni tiklash uchun ishlatiladi.
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-sm font-medium text-gray-700 mb-1">
-                    Parolni o'zgartirish
-                  </p>
-                  <div className="grid sm:grid-cols-2 grid-cols-1 gap-4">
-                    <div>
+                {editField === "fullName" && (
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
                       <label
-                        htmlFor="newPassword"
-                        className="block text-xs font-medium text-gray-600"
+                        htmlFor="fullName"
+                        className="block text-sm font-medium text-gray-700"
                       >
-                        Yangi parol
+                        To’liq ism
                       </label>
-                      <input
-                        className="w-full h-10 rounded-lg border border-gray-300 bg-gray-50 outline-none px-3 mt-1"
-                        type="password"
-                        id="newPassword"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        placeholder="Yangi parol"
-                      />
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="confirmNewPassword"
-                        className="block text-xs font-medium text-gray-600"
+                      <button
+                        type="button"
+                        className="text-sm text-gray-600 hover:text-gray-800 cursor-pointer"
+                        onClick={closeEditForm}
                       >
-                        Parolni qayta kiriting
-                      </label>
-                      <input
-                        className="w-full h-10 rounded-lg border border-gray-300 bg-gray-50 outline-none px-3 mt-1"
-                        type="password"
-                        id="confirmNewPassword"
-                        value={confirmNewPassword}
-                        onChange={(e) => setConfirmNewPassword(e.target.value)}
-                        placeholder="Parolni tasdiqlang"
-                      />
+                        Ortga
+                      </button>
                     </div>
+                    <input
+                      className="w-full h-10 rounded-lg border border-gray-300 bg-gray-50 outline-none px-3 mt-1"
+                      type="text"
+                      name="fullName"
+                      id="fullName"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="Safarali Turotov"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Bu ism profilingizda ko’rinib turadi.
+                    </p>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Parol kamida 8 ta belgidan iborat bo'lishi kerak.
-                    O'zgartirishni istamasangiz, bo'sh qoldiring.
-                  </p>
-                </div>
+                )}
 
-                <div>
-                  <label
-                    htmlFor="avatarUrl"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Avatar URL manzili
-                  </label>
-                  <input
-                    className="w-full h-10 rounded-lg border border-gray-300 bg-gray-50 outline-none px-3 mt-1"
-                    type="url"
-                    id="avatarUrl"
-                    value={avatarUrl}
-                    onChange={(e) => setAvatarUrl(e.target.value)}
-                    placeholder="https://example.com/avatar.png"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Profil rasmingiz uchun URL manzilini kiriting.
-                  </p>
-                </div>
+                {editField === "email" && (
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <label
+                        htmlFor="email"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        E-pochta manzili
+                      </label>
+                      <button
+                        type="button"
+                        className="text-sm text-gray-600 hover:text-gray-800 cursor-pointer"
+                        onClick={closeEditForm}
+                      >
+                        Ortga
+                      </button>
+                    </div>
+                    <input
+                      className="w-full h-10 rounded-lg border border-gray-300 bg-gray-50 outline-none px-3 mt-1"
+                      type="email"
+                      name="email"
+                      id="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="ajdarovasimzon@gmail.com"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      U tizimga kirish va hisobingizni tiklash uchun ishlatiladi.
+                    </p>
+                  </div>
+                )}
+
+                {editField === "password" && (
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <p className="text-sm font-medium text-gray-700">
+                        Parolni o'zgartirish
+                      </p>
+                      <button
+                        type="button"
+                        className="text-sm text-gray-600 hover:text-gray-800 cursor-pointer"
+                        onClick={closeEditForm}
+                      >
+                        Ortga
+                      </button>
+                    </div>
+                    <div className="grid sm:grid-cols-2 grid-cols-1 gap-4">
+                      <div>
+                        <label
+                          htmlFor="oldPassword"
+                          className="block text-xs font-medium text-gray-600"
+                        >
+                          Eski parol
+                        </label>
+                        <input
+                          className="w-full h-10 rounded-lg border border-gray-300 bg-gray-50 outline-none px-3 mt-1"
+                          type="password"
+                          id="oldPassword"
+                          value={oldPassword}
+                          onChange={(e) => setOldPassword(e.target.value)}
+                          placeholder="Eski parol"
+                        />
+                      </div>
+                      <div>
+                        <label
+                          htmlFor="newPassword"
+                          className="block text-xs font-medium text-gray-600"
+                        >
+                          Yangi parol
+                        </label>
+                        <input
+                          className="w-full h-10 rounded-lg border border-gray-300 bg-gray-50 outline-none px-3 mt-1"
+                          type="password"
+                          id="newPassword"
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          placeholder="Yangi parol"
+                        />
+                      </div>
+                      <div>
+                        <label
+                          htmlFor="confirmNewPassword"
+                          className="block text-xs font-medium text-gray-600"
+                        >
+                          Parolni qayta kiriting
+                        </label>
+                        <input
+                          className="w-full h-10 rounded-lg border border-gray-300 bg-gray-50 outline-none px-3 mt-1"
+                          type="password"
+                          id="confirmNewPassword"
+                          value={confirmNewPassword}
+                          onChange={(e) => setConfirmNewPassword(e.target.value)}
+                          placeholder="Parolni tasdiqlang"
+                        />
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Parol kamida 8 ta belgidan iborat bo'lishi kerak.
+                    </p>
+                  </div>
+                )}
+
+                {editField === "avatarUrl" && (
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <label
+                        htmlFor="avatarUrl"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Avatar URL manzili
+                      </label>
+                      <button
+                        type="button"
+                        className="text-sm text-gray-600 hover:text-gray-800 cursor-pointer"
+                        onClick={closeEditForm}
+                      >
+                        Ortga
+                      </button>
+                    </div>
+                    <input
+                      className="w-full h-10 rounded-lg border border-gray-300 bg-gray-50 outline-none px-3 mt-1"
+                      type="url"
+                      id="avatarUrl"
+                      value={avatarUrl}
+                      onChange={(e) => setAvatarUrl(e.target.value)}
+                      placeholder="https://example.com/avatar.png"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Profil rasmingiz uchun URL manzilini kiriting.
+                    </p>
+                  </div>
+                )}
 
                 <button
                   type="submit"
@@ -462,4 +548,5 @@ function Profile() {
     </section>
   );
 }
+
 export default Profile;

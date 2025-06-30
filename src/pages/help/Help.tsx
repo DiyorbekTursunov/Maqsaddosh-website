@@ -1,62 +1,53 @@
-"use client";
-
-import { useState } from "react";
-import { Menu, PlusCircle, Bell, User2, Send, ChevronDown } from "lucide-react";
-import Navbar from "../../components/navbar/Navbar";
+import { useState } from "react"
+import { Menu, PlusCircle, Bell, User2, Send, ChevronDown } from "lucide-react"
+import Navbar from "../../components/navbar/Navbar"
+import { AnimatePresence, motion } from "framer-motion"
 
 const faqData = [
   {
     id: "item-1",
     question: "Royxatdan o'tib bolmayapti",
     answer:
-      "Описание - краткая расшифровка часто задаваемого вопроса. Описывайте информацию, на которую не нашлось ответа на лендинге или которую стоит уточнить. Помогите пользователю решить его проблему и снять нагрузку с центра поддержки",
+      "Описание - краткая расшифровка часто задаваемого вопроса. Описывайте информацию, на которую не нашлось ответа на лендинге или которую стоит уточнить...",
   },
   {
     id: "item-2",
     question: "Parolni unutdim, nima qilish kerak?",
     answer:
-      "Agar parolingizni unutgan bo'lsangiz, 'Parolni tiklash' sahifasiga o'ting va ko'rsatmalarga amal qiling. Emailingizga parolni tiklash uchun havola yuboriladi.",
+      "Agar parolingizni unutgan bo'lsangiz, 'Parolni tiklash' sahifasiga o'ting va ko'rsatmalarga amal qiling...",
   },
   {
     id: "item-3",
     question: "Platformadan qanday foydalanish mumkin?",
     answer:
-      "Platformadan foydalanish bo'yicha to'liq qo'llanma 'Qo'llanmalar' bo'limida mavjud. Shuningdek, har bir bo'limda yordamchi maslahatlar topishingiz mumkin.",
+      "Platformadan foydalanish bo'yicha to'liq qo'llanma 'Qo'llanmalar' bo'limida mavjud...",
   },
   {
     id: "item-4",
     question: "To'lov usullari qanday?",
     answer:
-      "Biz turli xil to'lov usullarini qabul qilamiz, jumladan bank kartalari (Visa, MasterCard), elektron hamyonlar va bank o'tkazmalari. Batafsil ma'lumot 'To'lov' sahifasida.",
+      "Biz turli xil to'lov usullarini qabul qilamiz, jumladan bank kartalari, elektron hamyonlar...",
   },
   {
     id: "item-5",
     question: "Qo'llab-quvvatlash xizmatiga qanday bog'lansam bo'ladi?",
     answer:
-      "Qo'llab-quvvatlash xizmatiga ushbu sahifadagi 'BOG'LANISH' tugmasi orqali, yoki support@example.com elektron pochta manziliga xat yozish orqali bog'lanishingiz mumkin.",
+      "Qo'llab-quvvatlash xizmatiga ushbu sahifadagi 'BOG'LANISH' tugmasi orqali yoki email orqali bog'laning...",
   },
-];
+]
 
 export default function SupportPage() {
-  const [openAccordionItemId, setOpenAccordionItemId] = useState<
-    string | undefined
-  >(faqData[0].id);
+  const [openAccordionItemId, setOpenAccordionItemId] = useState<string | undefined>(faqData[0].id)
 
   const handleAccordionToggle = (itemId: string) => {
-    setOpenAccordionItemId((prevId) =>
-      prevId === itemId ? undefined : itemId
-    );
-  };
+    setOpenAccordionItemId((prevId) => (prevId === itemId ? undefined : itemId))
+  }
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
       <div className="max-w-[1200px] mx-auto">
-        {/* Header */}
         <Navbar />
-
-        {/* Main Content */}
         <main className="flex flex-col lg:flex-row lg:justify-between px-6 py-12 gap-12 lg:gap-[100px]">
-          {/* Left Section */}
           <div className="lg:w-[500px] flex-shrink-0">
             <p className="text-gray-600 text-xl mb-6">Yordam kerakmi?</p>
             <h1 className="text-4xl lg:text-[40px] font-bold leading-tight text-gray-800 mb-8">
@@ -71,11 +62,10 @@ export default function SupportPage() {
             </button>
           </div>
 
-          {/* Right Section - Custom Accordion */}
           <div className="lg:w-[600px] flex-shrink-0">
             <div className="w-full flex flex-col gap-4">
               {faqData.map((item) => {
-                const isOpen = openAccordionItemId === item.id;
+                const isOpen = openAccordionItemId === item.id
                 return (
                   <div
                     key={item.id}
@@ -90,40 +80,61 @@ export default function SupportPage() {
                       onClick={() => handleAccordionToggle(item.id)}
                       aria-expanded={isOpen}
                       aria-controls={`faq-content-${item.id}`}
-                      className={` cursor-pointer flex justify-between items-center w-full px-6 py-5 text-left font-medium text-base group focus:outline-none ${
+                      className={`cursor-pointer flex justify-between items-center w-full px-6 py-5 text-left font-medium text-base group focus:outline-none ${
                         isOpen ? "text-white" : "text-gray-700 hover:text-gray-900"
                       }`}
                     >
                       <span className="flex-grow">{item.question}</span>
-                      <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-200 ml-4 shrink-0 ${
+                      <motion.div
+                        animate={{ rotate: isOpen ? 180 : 0 }}
+                        transition={{ duration: 0.3 }}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center ml-4 shrink-0 ${
                           isOpen ? "bg-white" : "bg-gray-100 group-hover:bg-gray-200"
                         }`}
                       >
                         <ChevronDown
-                          className={`w-4 h-4 transition-transform duration-300 ${
+                          className={`w-4 h-4 ${
                             isOpen
-                              ? "rotate-180 text-blue-700"
+                              ? "text-blue-700"
                               : "text-gray-500 group-hover:text-gray-700"
                           }`}
                         />
-                      </div>
+                      </motion.div>
                     </button>
-                    {isOpen && (
-                      <div
-                        id={`faq-content-${item.id}`}
-                        className="text-[#fff] px-6 pb-6 text-sm opacity-95"
-                      >
-                        {item.answer}
-                      </div>
-                    )}
+
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
+                        <motion.div
+                          key="content"
+                          initial="collapsed"
+                          animate="open"
+                          exit="collapsed"
+                          variants={{
+                            open: { height: "auto", opacity: 1 },
+                            collapsed: { height: 0, opacity: 0 },
+                          }}
+                          transition={{ duration: 0.4, ease: "easeInOut" }}
+                          className="overflow-hidden"
+                        >
+                          <motion.div
+                            className="px-6 pb-6 pt-2 text-sm text-white opacity-95"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            {item.answer}
+                          </motion.div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
-                );
+                )
               })}
             </div>
           </div>
         </main>
       </div>
     </div>
-  );
+  )
 }
