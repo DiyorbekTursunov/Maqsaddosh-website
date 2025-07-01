@@ -2,45 +2,54 @@ import { useState } from "react"
 import { Menu, PlusCircle, Bell, User2, Send, ChevronDown } from "lucide-react"
 import Navbar from "../../components/navbar/Navbar"
 import { AnimatePresence, motion } from "framer-motion"
+import Router from "next/router"
 
 const faqData = [
-  {
-    id: "item-1",
-    question: "Royxatdan o'tib bolmayapti",
-    answer:
-      "Описание - краткая расшифровка часто задаваемого вопроса. Описывайте информацию, на которую не нашлось ответа на лендинге или которую стоит уточнить...",
-  },
-  {
-    id: "item-2",
-    question: "Parolni unutdim, nima qilish kerak?",
-    answer:
-      "Agar parolingizni unutgan bo'lsangiz, 'Parolni tiklash' sahifasiga o'ting va ko'rsatmalarga amal qiling...",
-  },
-  {
-    id: "item-3",
-    question: "Platformadan qanday foydalanish mumkin?",
-    answer:
-      "Platformadan foydalanish bo'yicha to'liq qo'llanma 'Qo'llanmalar' bo'limida mavjud...",
-  },
-  {
-    id: "item-4",
-    question: "To'lov usullari qanday?",
-    answer:
-      "Biz turli xil to'lov usullarini qabul qilamiz, jumladan bank kartalari, elektron hamyonlar...",
-  },
-  {
-    id: "item-5",
-    question: "Qo'llab-quvvatlash xizmatiga qanday bog'lansam bo'ladi?",
-    answer:
-      "Qo'llab-quvvatlash xizmatiga ushbu sahifadagi 'BOG'LANISH' tugmasi orqali yoki email orqali bog'laning...",
-  },
+    {
+        id: "item-1",
+        question: "Maqsadga sodiqlik",
+        answer:
+            "Har bir foydalanuvchining maqsadi biz uchun muhim. Biz odamlarga o‘z yo‘lidan chetga chiqmasdan qat’iyat bilan harakat qilishda yordam beramiz.",
+    },
+    {
+        id: "item-2",
+        question: "Birgalikda o‘sish",
+        answer:
+            "Haqiqiy o‘sish yolg‘izlikda emas — birga intilishda ro‘y beradi. Biz jamoaviy muvaffaqiyatni individual yutuqdan ustun qo‘yamiz.",
+    },
+    {
+        id: "item-3",
+        question: "Halollik va ochiqlik",
+        answer:
+            "Platformamizda har bir foydalanuvchi o‘z haqiqiy holatini ko‘rsata oladi — bu yerda taqqoslash emas, qo‘llab-quvvatlash bor.",
+    },
+    {
+        id: "item-4",
+        question: "Doimiy o‘zgarish va rivojlanish",
+        answer:
+            "Biz uchun har bir kichik qadam — katta o‘zgarish sari qadam. Harakatdagi barqarorlik – bizning ustuvor qadriyatimiz.",
+    },
+    {
+        id: "item-5",
+        question: "Ilhom va motivatsiya",
+        answer:
+            "Maqsaddosh faqat vosita emas, balki har kuni sizni oldinga undovchi ilhom manbaidir.",
+    },
 ]
 
 export default function SupportPage() {
   const [openAccordionItemId, setOpenAccordionItemId] = useState<string | undefined>(faqData[0].id)
+  const router = Router.useRouter()
+
 
   const handleAccordionToggle = (itemId: string) => {
     setOpenAccordionItemId((prevId) => (prevId === itemId ? undefined : itemId))
+  }
+
+  const handleContactClick = () => {
+    // Handle contact button click, e.g., open a contact form or redirect to a contact page'
+    router.push("https://t.me/maqsaddosh_support")
+    console.log("Contact button clicked")
   }
 
   return (
@@ -55,6 +64,7 @@ export default function SupportPage() {
             </h1>
             <button
               type="button"
+              onClick={() => }
               className="cursor-pointer bg-blue-700 hover:bg-blue-600 text-white px-8 py-4 rounded-2xl h-[60px] w-full sm:w-[285px] text-base font-semibold flex items-center justify-center gap-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               <Send className="w-5 h-5" />
