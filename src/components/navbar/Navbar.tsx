@@ -43,14 +43,11 @@ function Navbar() {
 
       try {
         setIsLoadingUser(true);
-        const response = await fetch(
-          "https://api.maqsaddosh.uz/api/me",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await fetch("https://api.maqsaddosh.uz/api/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         if (response.ok) {
           const data = await response.json();
@@ -101,7 +98,8 @@ function Navbar() {
   };
 
   // Define active states for all routes
-  const isHomeActive = location.pathname === "/" || location.pathname === "/home";
+  const isHomeActive =
+    location.pathname === "/" || location.pathname === "/home";
   const isMaqsaddoshActive = location.pathname === "/joined-goals";
   const isAboutActive = location.pathname === "/blog";
   const isHelpActive = location.pathname === "/help";
@@ -132,7 +130,9 @@ function Navbar() {
               <a
                 onClick={() => navigateTo("/")}
                 className={`cursor-pointer link font-medium text-base leading-[130%] tracking-[0%] font-manrope ${
-                  isHomeActive ? "text-blue-600" : "text-gray-600 hover:text-blue-600 active:text-blue-600"
+                  isHomeActive
+                    ? "text-blue-600"
+                    : "text-gray-600 hover:text-blue-600 active:text-blue-600"
                 }`}
               >
                 Bosh sahifa
@@ -142,7 +142,9 @@ function Navbar() {
               <a
                 onClick={() => navigateTo("/joined-goals")}
                 className={`cursor-pointer link font-medium text-base leading-[130%] tracking-[0%] font-manrope ${
-                  isMaqsaddoshActive ? "text-blue-600" : "text-gray-600 hover:text-blue-600 active:text-blue-600"
+                  isMaqsaddoshActive
+                    ? "text-blue-600"
+                    : "text-gray-600 hover:text-blue-600 active:text-blue-600"
                 }`}
               >
                 Maqsaddosh
@@ -152,7 +154,9 @@ function Navbar() {
               <a
                 onClick={() => navigateTo("/blog")}
                 className={`cursor-pointer link font-medium text-base leading-[130%] tracking-[0%] font-manrope ${
-                  isAboutActive ? "text-blue-600" : "text-gray-600 hover:text-blue-600 active:text-blue-600"
+                  isAboutActive
+                    ? "text-blue-600"
+                    : "text-gray-600 hover:text-blue-600 active:text-blue-600"
                 }`}
               >
                 Biz haqimizda
@@ -162,7 +166,9 @@ function Navbar() {
               <a
                 onClick={() => navigateTo("/help")}
                 className={`cursor-pointer link font-medium text-base leading-[130%] tracking-[0%] font-manrope ${
-                  isHelpActive ? "text-blue-600" : "text-gray-600 hover:text-blue-600 active:text-blue-600"
+                  isHelpActive
+                    ? "text-blue-600"
+                    : "text-gray-600 hover:text-blue-600 active:text-blue-600"
                 }`}
               >
                 Yordam
@@ -185,6 +191,20 @@ function Navbar() {
               Maqsad qo'shish
             </span>
           </button>
+
+          {!currentUser && (
+            <button
+              className="flex justify-center items-center lg:w-11 lg:h-11 w-10 h-10 rounded-[8px] border-none cursor-pointer hover:opacity-65 active:opacity-50 transition-all duration-300"
+              onClick={() => setIsModalOpen((prev) => !prev)}
+            >
+              <img
+                className="w-6 h-6"
+                src={userIcon || "/placeholder.svg"}
+                alt="User"
+              />
+            </button>
+          )}
+
           {currentUser ? (
             <button
               className="flex justify-center items-center lg:w-11 lg:h-11 w-10 h-10 rounded-[8px] border-none cursor-pointer hover:opacity-65 active:opacity-50 transition-all duration-300"
@@ -319,7 +339,9 @@ function Navbar() {
         <a
           onClick={() => navigateTo("/")}
           className={`cursor-pointer link font-medium text-base leading-[130%] tracking-[0%] font-manrope ${
-            isHomeActive ? "text-blue-600" : "text-gray-600 hover:text-blue-600 active:text-blue-600"
+            isHomeActive
+              ? "text-blue-600"
+              : "text-gray-600 hover:text-blue-600 active:text-blue-600"
           }`}
         >
           Bosh sahifa
@@ -327,7 +349,9 @@ function Navbar() {
         <a
           onClick={() => navigateTo("/joined-goals")}
           className={`cursor-pointer link font-medium text-base leading-[130%] tracking-[0%] font-manrope ${
-            isMaqsaddoshActive ? "text-blue-600" : "text-gray-600 hover:text-blue-600 active:text-blue-600"
+            isMaqsaddoshActive
+              ? "text-blue-600"
+              : "text-gray-600 hover:text-blue-600 active:text-blue-600"
           }`}
         >
           Maqsaddosh
@@ -335,7 +359,9 @@ function Navbar() {
         <a
           onClick={() => navigateTo("/blog")}
           className={`cursor-pointer link font-medium text-base leading-[130%] tracking-[0%] font-manrope ${
-            isAboutActive ? "text-blue-600" : "text-gray-600 hover:text-blue-600 active:text-blue-600"
+            isAboutActive
+              ? "text-blue-600"
+              : "text-gray-600 hover:text-blue-600 active:text-blue-600"
           }`}
         >
           Biz haqimizda
@@ -343,7 +369,9 @@ function Navbar() {
         <a
           onClick={() => navigateTo("/help")}
           className={`cursor-pointer link font-medium text-base leading-[130%] tracking-[0%] font-manrope ${
-            isHelpActive ? "text-blue-600" : "text-gray-600 hover:text-blue-600 active:text-blue-600"
+            isHelpActive
+              ? "text-blue-600"
+              : "text-gray-600 hover:text-blue-600 active:text-blue-600"
           }`}
         >
           Yordam

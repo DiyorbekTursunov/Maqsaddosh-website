@@ -322,6 +322,7 @@ export default function AddGoal(): JSX.Element {
             {/* Description Textarea */}
             <textarea
               placeholder="Izoh qoldirish"
+              required
               rows={3}
               value={formData.description}
               onChange={handleInputChange("description")}

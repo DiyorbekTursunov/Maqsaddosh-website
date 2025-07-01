@@ -46,7 +46,7 @@ function Registr() {
 
     // Client-side email validation
     if (!emailRegex.test(email)) {
-      setEmailError("Iltimos, to'g'ri email manzilini kiriting (masalan, diyorbek@gmail.com)")
+      setEmailError("Iltimos, to'g'ri email manzilini kiriting")
       return
     }
 
