@@ -1,56 +1,56 @@
-import { useState } from "react"
-import { Menu, PlusCircle, Bell, User2, Send, ChevronDown } from "lucide-react"
-import Navbar from "../../components/navbar/Navbar"
-import { AnimatePresence, motion } from "framer-motion"
-import Router from "next/router"
+import { useState } from "react";
+import { Menu, PlusCircle, Bell, User2, Send, ChevronDown, Navigation } from "lucide-react";
+import Navbar from "../../components/navbar/Navbar";
+import { AnimatePresence, motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const faqData = [
-    {
-        id: "item-1",
-        question: "Maqsadga sodiqlik",
-        answer:
-            "Har bir foydalanuvchining maqsadi biz uchun muhim. Biz odamlarga o‘z yo‘lidan chetga chiqmasdan qat’iyat bilan harakat qilishda yordam beramiz.",
-    },
-    {
-        id: "item-2",
-        question: "Birgalikda o‘sish",
-        answer:
-            "Haqiqiy o‘sish yolg‘izlikda emas — birga intilishda ro‘y beradi. Biz jamoaviy muvaffaqiyatni individual yutuqdan ustun qo‘yamiz.",
-    },
-    {
-        id: "item-3",
-        question: "Halollik va ochiqlik",
-        answer:
-            "Platformamizda har bir foydalanuvchi o‘z haqiqiy holatini ko‘rsata oladi — bu yerda taqqoslash emas, qo‘llab-quvvatlash bor.",
-    },
-    {
-        id: "item-4",
-        question: "Doimiy o‘zgarish va rivojlanish",
-        answer:
-            "Biz uchun har bir kichik qadam — katta o‘zgarish sari qadam. Harakatdagi barqarorlik – bizning ustuvor qadriyatimiz.",
-    },
-    {
-        id: "item-5",
-        question: "Ilhom va motivatsiya",
-        answer:
-            "Maqsaddosh faqat vosita emas, balki har kuni sizni oldinga undovchi ilhom manbaidir.",
-    },
-]
+  {
+    id: "item-1",
+    question: "Maqsadga sodiqlik",
+    answer:
+      "Har bir foydalanuvchining maqsadi biz uchun muhim. Biz odamlarga o‘z yo‘lidan chetga chiqmasdan qat’iyat bilan harakat qilishda yordam beramiz.",
+  },
+  {
+    id: "item-2",
+    question: "Birgalikda o‘sish",
+    answer:
+      "Haqiqiy o‘sish yolg‘izlikda emas — birga intilishda ro‘y beradi. Biz jamoaviy muvaffaqiyatni individual yutuqdan ustun qo‘yamiz.",
+  },
+  {
+    id: "item-3",
+    question: "Halollik va ochiqlik",
+    answer:
+      "Platformamizda har bir foydalanuvchi o‘z haqiqiy holatini ko‘rsata oladi — bu yerda taqqoslash emas, qo‘llab-quvvatlash bor.",
+  },
+  {
+    id: "item-4",
+    question: "Doimiy o‘zgarish va rivojlanish",
+    answer:
+      "Biz uchun har bir kichik qadam — katta o‘zgarish sari qadam. Harakatdagi barqarorlik – bizning ustuvor qadriyatimiz.",
+  },
+  {
+    id: "item-5",
+    question: "Ilhom va motivatsiya",
+    answer:
+      "Maqsaddosh faqat vosita emas, balki har kuni sizni oldinga undovchi ilhom manbaidir.",
+  },
+];
 
 export default function SupportPage() {
-  const [openAccordionItemId, setOpenAccordionItemId] = useState<string | undefined>(faqData[0].id)
-  const router = Router.useRouter()
-
+  const [openAccordionItemId, setOpenAccordionItemId] = useState<string | undefined>(faqData[0].id);
+  const navigate = useNavigate();
 
   const handleAccordionToggle = (itemId: string) => {
-    setOpenAccordionItemId((prevId) => (prevId === itemId ? undefined : itemId))
-  }
+    setOpenAccordionItemId((prevId) => (prevId === itemId ? undefined : itemId));
+  };
 
   const handleContactClick = () => {
-    // Handle contact button click, e.g., open a contact form or redirect to a contact page'
-    router.push("https://t.me/maqsaddosh_support")
-    console.log("Contact button clicked")
-  }
+    // Redirect to external URL (e.g., Telegram)
+    window.location.href = "https://t.me/maqsaddosh_support";
+    // Alternatively, to open in a new tab:
+    // window.open("https://t.me/maqsaddosh_support", "_blank");
+  };
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
@@ -62,20 +62,20 @@ export default function SupportPage() {
             <h1 className="text-4xl lg:text-[40px] font-bold leading-tight text-gray-800 mb-8">
               Bizda 24/7 mavjud qo'llab-quvvatlash.
             </h1>
-            <button
+            <a href="https://t.me/maqsaddosh_support" target="_blank"
               type="button"
-              onClick={() => }
+
               className="cursor-pointer bg-blue-700 hover:bg-blue-600 text-white px-8 py-4 rounded-2xl h-[60px] w-full sm:w-[285px] text-base font-semibold flex items-center justify-center gap-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               <Send className="w-5 h-5" />
               BOG'LANISH
-            </button>
+            </a>
           </div>
 
           <div className="lg:w-[600px] flex-shrink-0">
             <div className="w-full flex flex-col gap-4">
               {faqData.map((item) => {
-                const isOpen = openAccordionItemId === item.id
+                const isOpen = openAccordionItemId === item.id;
                 return (
                   <div
                     key={item.id}
@@ -139,12 +139,12 @@ export default function SupportPage() {
                       )}
                     </AnimatePresence>
                   </div>
-                )
+                );
               })}
             </div>
           </div>
         </main>
       </div>
     </div>
-  )
+  );
 }
