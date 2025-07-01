@@ -27,8 +27,8 @@ function Registr() {
 
   const from = location.state?.from?.pathname || "/home"
 
-  // Stricter email regex: allows letters, numbers, dots, hyphens, underscores in local part
-  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+// Stricter email regex: allows letters, numbers, dots, hyphens, underscores, and apostrophes in local part
+const emailRegex = /^[a-zA-Z0-9._'-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 
   // Check for random or suspicious email patterns
   const isRandomEmail = (email: string): boolean => {
@@ -50,11 +50,11 @@ function Registr() {
       return
     }
 
-    // Check for random or suspicious email patterns
-    if (isRandomEmail(email)) {
-      setEmailError("Email manzili haqiqiy bo'lishi kerak (masalan, ism.familiya@gmail.com)")
-      return
-    }
+    // // Check for random or suspicious email patterns
+    // if (isRandomEmail(email)) {
+    //   setEmailError("Email manzili haqiqiy bo'lishi kerak (masalan, ism.familiya@gmail.com)")
+    //   return
+    // }
 
     try {
       const response = await apiService.post("/signup", { fullName, email, password })
@@ -79,13 +79,13 @@ function Registr() {
     if (!email) return
 
     if (!emailRegex.test(email)) {
-      setEmailError("Iltimos, to'g'ri email manzilini kiriting (masalan, diyorbek@gmail.com)")
+      setEmailError("Iltimos, to'g'ri email manzilini kiriting")
       return
     }
-    if (isRandomEmail(email)) {
-      setEmailError("Email manzili haqiqiy bo'lishi kerak (masalan, ism.familiya@gmail.com)")
-      return
-    }
+    // if (isRandomEmail(email)) {
+    //   setEmailError("Email manzili haqiqiy bo'lishi kerak (masalan, ism.familiya@gmail.com)")
+    //   return
+    // }
   }
 
   const handleGoogleLogin = () => {
