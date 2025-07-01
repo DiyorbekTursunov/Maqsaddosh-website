@@ -1,7 +1,6 @@
 import Navbar from "../../components/navbar/Navbar";
 
 export default function Blog() {
-
   return (
     <div className="bg-[#FBFBFB] md:bg-white font-sans">
       {/* Header */}
@@ -15,7 +14,7 @@ export default function Blog() {
         </h1>
 
         <div className="flex-col md:flex md:flex-row justify-between">
-          <p className="mb-5 md:text-[16px] text-gray-600">8 iyun 2025</p>
+          <p className="mb-5 md:text-[16px] text-gray-600">1 iyul 2025</p>
 
           {/* Blog Post */}
           <div className="max-w-[362px]">
@@ -43,41 +42,33 @@ export default function Blog() {
 
             {/* Main Title */}
             <h2 className="text-[28px] font-bold text-gray-900 mb-2">
-              Mobbin is SOC 2 compliant
+              Maqsaddosh nima?
             </h2>
 
             {/* Main Content */}
             <p className="text-gray-600 text-[12px] leading-relaxed mb-4">
-              We're excited to share that Mobbin is now SOC 2 Type II compliant.
-              Over the past year, our team spent considerable effort to tighten
-              control and visibility of our data and processes with the help of
-              the SOC 2 framework.
+              Maqsaddosh — bu maqsadlari o‘xshash insonlarni bir platformada birlashtiruvchi innovatsion tizim bo‘lib, foydalanuvchilarga o‘zaro hamkorlik orqali samaradorlikni oshirish va rivojlanish jarayonini yanada qiziqarli va ilhomlantiruvchi qilish imkonini beradi.
             </p>
 
             {/* Subheading 1 */}
             <h3 className="text-[20px] font-semibold text-gray-900 mb-2">
-              What is SOC 2?
+              Birgalikda o’sish
             </h3>
 
             {/* Content 1 */}
             <p className="text-gray-600 text-[12px] leading-relaxed mb-4">
-              We're excited to share that Mobbin is now SOC 2 Type II compliant.
-              Over the past year, our team spent considerable effort to tighten
-              control and visibility of our data and processes with the help of
-              the SOC 2 framework.
+              Platforma orqali foydalanuvchilar o‘zlariga mos “maqsaddosh”larni osongina topishadi va ularning ko‘magida belgilangan maqsadlarga birgalikda harakat qilishadi. Bu esa faqat individual emas, balki jamoaviy o‘sishni ham qo‘llab-quvvatlaydi.
             </p>
 
             {/* Subheading 2 */}
             <h3 className="text-[20px] font-semibold text-gray-900 mb-2">
-              What is SOC 2?
+              Bizning missiyamiz
             </h3>
 
             {/* Content 2 */}
             <p className="text-gray-600 text-[12px] leading-relaxed mb-4">
-              We're excited to share that Mobbin is now SOC 2 Type II compliant.
-              Over the past year, our team spent considerable effort to tighten
-              control and visibility of our data and processes with the help of
-              the SOC 2 framework.
+              Bizning missiyamiz — dunyo bo‘ylab millionlab insonlarga o‘z maqsadlariga yetishda yordam berish, ularni bir-biriga bog‘lab, hayotni yanada ma’noli va samarali qilish. <br />
+              Maqsaddosh orqali biz har bir foydalanuvchining ichki salohiyatini ochish, ularni yolg‘iz emasligini his qilishga undash va o‘z ustida ishlashni kunlik odatga aylantirishni maqsad qilganmiz.
             </p>
           </div>
         </div>
