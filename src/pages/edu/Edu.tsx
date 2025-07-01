@@ -6,6 +6,7 @@ import Navbar from "../../components/navbar/Navbar";
 import Hero from "../../components/hero/Hero";
 import Cart from "../../components/cart/Cart"; // Add this
 import eduIcon from "../../assets/images/teacher.svg";
+import { ChevronLeft } from "lucide-react"
 
 // Interface for frontend category styling
 interface CategoryStyle {
@@ -34,8 +35,11 @@ function Edu() {
       setError("");
       try {
         // This endpoint should return the direction with its subDirections
-        const response = await apiService.get<{ success: boolean; data: SubDirection[] }>(
-          `/directions/${directionsId}`, // Assuming this endpoint returns direction name and its subdirections
+        const response = await apiService.get<{
+          success: boolean;
+          data: SubDirection[];
+        }>(
+          `/directions/${directionsId}` // Assuming this endpoint returns direction name and its subdirections
         );
         if (response.data.success) {
           setDirection(response.data.data);
@@ -44,7 +48,9 @@ function Edu() {
         }
       } catch (err: any) {
         console.error("Direction details error:", err);
-        setError(err.response?.data?.error || "Yo'nalish ma'lumotlari yuklanmadi");
+        setError(
+          err.response?.data?.error || "Yo'nalish ma'lumotlari yuklanmadi"
+        );
       } finally {
         setIsLoading(false);
       }
@@ -56,20 +62,32 @@ function Edu() {
     navigate(`/goals?subdirectionId=${subdirectionId}`);
   };
 
+  const handleBackClick = () => {
+    // Navigate back to the parent direction page if possible, or just history back
+    // Example: navigate(`/edu/${parentDirectionId}`) if you have it
+    navigate(-1);
+  };
+
   return (
     <>
       <Navbar />
       <Hero />
       <section className="edu py-10">
         <div className="container max-w-6xl w-full mx-auto px-5">
-          {isLoading && <p className="text-center text-gray-600">Yuklanmoqda...</p>}
+          {isLoading && (
+            <p className="text-center text-gray-600">Yuklanmoqda...</p>
+          )}
           {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
           {direction && !isLoading && !error && (
             <>
-              <p className="flex md:text-[20px] text-lg leading-[130%] tracking-[0%] font-manrope text-gray-900 mb-5">
+              <button
+                className="cursor-pointer flex md:text-[20px] text-lg leading-[130%] tracking-[0%] font-manrope text-gray-900 mb-5"
+                onClick={handleBackClick}
+              >
+                <ChevronLeft className="text-gray-500" />
                 Maqsad yo’nalishlari
-              </p>
+              </button>
               {direction && direction.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full pb-10">
                   {direction.map((sub) => (
@@ -88,11 +106,15 @@ function Edu() {
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-700 text-center">Bu yo'nalishda ichki bo'limlar mavjud emas.</p>
+                <p className="text-gray-700 text-center">
+                  Bu yo'nalishda ichki bo'limlar mavjud emas.
+                </p>
               )}
             </>
           )}
-          {!direction && !isLoading && !error && <p className="text-gray-700 text-center">Yo'nalish topilmadi.</p>}
+          {!direction && !isLoading && !error && (
+            <p className="text-gray-700 text-center">Yo'nalish topilmadi.</p>
+          )}
         </div>
       </section>
     </>
