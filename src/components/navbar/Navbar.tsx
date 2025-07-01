@@ -192,18 +192,6 @@ function Navbar() {
             </span>
           </button>
 
-          {!currentUser && (
-            <button
-              className="flex justify-center items-center lg:w-11 lg:h-11 w-10 h-10 rounded-[8px] border-none cursor-pointer hover:opacity-65 active:opacity-50 transition-all duration-300"
-              onClick={() => setIsModalOpen((prev) => !prev)}
-            >
-              <img
-                className="w-6 h-6"
-                src={userIcon || "/placeholder.svg"}
-                alt="User"
-              />
-            </button>
-          )}
 
           {currentUser ? (
             <button
