@@ -45,13 +45,13 @@ function Profile() {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState("");
+//   const [avatarUrl, setAvatarUrl] = useState("");
 
   useEffect(() => {
     if (currentUser) {
       setFullName(currentUser.fullName);
       setEmail(currentUser.email);
-      setAvatarUrl(currentUser.avatar || "");
+    //   setAvatarUrl(currentUser.avatar || "");
     }
   }, [currentUser]);
 
@@ -101,9 +101,9 @@ function Profile() {
       updateData.oldPassword = oldPassword;
       updateData.password = newPassword;
     }
-    if (editField === "avatarUrl" && avatarUrl !== (currentUser.avatar || "")) {
-      updateData.avatar = avatarUrl;
-    }
+    // if (editField === "avatarUrl" && avatarUrl !== (currentUser.avatar || "")) {
+    //   updateData.avatar = avatarUrl;
+    // }
 
     if (Object.keys(updateData).length === 0) {
       setFormMessage({
@@ -156,7 +156,7 @@ function Profile() {
     if (currentUser) {
       setFullName(currentUser.fullName);
       setEmail(currentUser.email);
-      setAvatarUrl(currentUser.avatar || "");
+    //   setAvatarUrl(currentUser.avatar || "");
       setOldPassword("");
       setNewPassword("");
       setConfirmNewPassword("");
@@ -169,7 +169,7 @@ function Profile() {
     if (currentUser) {
       setFullName(currentUser.fullName);
       setEmail(currentUser.email);
-      setAvatarUrl(currentUser.avatar || "");
+    //   setAvatarUrl(currentUser.avatar || "");
       setOldPassword("");
       setNewPassword("");
       setConfirmNewPassword("");
@@ -519,14 +519,7 @@ function Profile() {
                         Ortga
                       </button>
                     </div>
-                    <input
-                      className="w-full h-10 rounded-lg border border-gray-300 bg-gray-50 outline-none px-3 mt-1"
-                      type="url"
-                      id="avatarUrl"
-                      value={avatarUrl}
-                      onChange={(e) => setAvatarUrl(e.target.value)}
-                      placeholder="https://example.com/avatar.png"
-                    />
+                    Hozircha imkonsiz
                     <p className="text-xs text-gray-500 mt-1">
                       Profil rasmingiz uchun URL manzilini kiriting.
                     </p>
